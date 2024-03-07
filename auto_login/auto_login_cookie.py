@@ -106,8 +106,9 @@ class NoCookieLogin:
 
 # ----------------------------------------------------------------------------------
 
+
+    # IDとパスを入力
     def id_pass_input(self):
-        # IDとパスを入力
         try:
             userid_field = self.chrome.find_element_by_xpath(self.userid_xpath)
             userid_field.send_keys(self.userid)
@@ -170,7 +171,6 @@ class NoCookieLogin:
 
     def recaptcha_process(self):
         '''reCAPTCHA検知してある場合は2CAPTCHAメソッドを実行'''
-        # reCAPTCHA検知
         try:
             # sitekeyを検索
             elements = self.chrome.find_elements_by_css_selector('[data-sitekey]')
@@ -305,8 +305,8 @@ class NoCookieLogin:
 
     # 非同期化させるために、すべてのメソッドをとりまとめ
     def no_cookie_login(self):
-        '''  ログインしてCookieを取得する。
-        '''
+        '''ログインしてCookieを取得する。'''
+
         self.logger.debug(f"{__name__}: 処理開始")
 
         self.open_site()
