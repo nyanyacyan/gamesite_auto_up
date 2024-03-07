@@ -48,3 +48,6 @@ venv_shopers_scraping/
 
 # batふぁいる
 *.bat
+
+# 画像ファイル
+.webp
