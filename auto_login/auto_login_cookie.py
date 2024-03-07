@@ -30,7 +30,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 
 # 自作モジュール
-from auto_login.autologin_subclass import SolverRecaptcha
+from auto_login.solve_recaptcha import SolverRecaptcha
 from logger.debug_logger import Logger
 
 load_dotenv()

@@ -43,7 +43,7 @@ class SolverRecaptcha:
         self.api_key = os.getenv('APIKEY_2CAPTCHA')
 
 
-    def solveRecaptcha(self, sitekey, url):
+    def drawIfNeeded(self, sitekey, url):
         solver = TwoCaptcha(self.api_key)
 
         try:
@@ -97,7 +97,7 @@ class SolverRecaptcha:
 
         self.logger.info("2captcha開始")
 
-        result = self.solveRecaptcha(
+        result = self.drawIfNeeded(
             data_sitekey_value,
             current_url
         )
