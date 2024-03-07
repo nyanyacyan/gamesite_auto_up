@@ -37,7 +37,6 @@ class SolverRecaptcha:
 
 
         load_dotenv()
-        self.line_notify = LineNotify()
         self.chrome = chrome_driver
 
         # 2captcha APIkeyを.envから取得
