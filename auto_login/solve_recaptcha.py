@@ -20,7 +20,6 @@ import os
 from selenium.common.exceptions import NoSuchElementException
 
 from twocaptcha import TwoCaptcha
-from notify.notify_line import LineNotify
 from dotenv import load_dotenv
 
 # 自作モジュール
@@ -58,7 +57,7 @@ class SolverRecaptcha:
 
         else:
             return result
-        
+
 
 
 

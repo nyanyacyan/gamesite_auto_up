@@ -36,10 +36,8 @@ import datetime
 
 # モジュール
 from logger.debug_logger import Logger
-from autologin.solve_recaptcha import SolverRecaptcha
-from notify.notify_line import LineNotify
-from notify.notify_chatwork import ChatworkNotify
-from notify.notify_slack import SlackNotify
+from auto_login.autologin_subclass import SolverRecaptcha
+
 
 load_dotenv()
 
@@ -67,15 +65,6 @@ class AutoLogin:
         # SolverRecaptchaクラスを初期化
         self.recaptcha_solver = SolverRecaptcha(self.chrome)
 
-        # LineNotifyクラスを初期化
-        self.line_notify = LineNotify()
-
-        # ChatworkNotifyクラスを初期化
-        self.chatwork_notify = ChatworkNotify()
-
-        # SlackNotifyクラスを初期化
-        self.slack_notify = SlackNotify()
-
 
 
     # 同期的なログイン
@@ -93,7 +82,7 @@ class AutoLogin:
         try:
             WebDriverWait(self.chrome, 10).until(EC.presence_of_element_located((By.XPATH, userid_xpath)))
             self.logger.debug(f"{site_name} 入力開始")
-        
+
         except TimeoutException as e:
             print(f"タイムアウトエラー:{e}")
 
