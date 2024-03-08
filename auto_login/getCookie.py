@@ -3,6 +3,8 @@
 # 非同期処理 自動ログインクラス
 # headlessモード、reCAPTCHA回避
 # 2023/3/8制作
+
+#! webdriverをどこが開いているのかを確認しながら実装が必要。
 # ----------------------------------------------------------------------------------
 
 
@@ -41,7 +43,7 @@ executor = ThreadPoolExecutor(max_workers=5)
 # ----------------------------------------------------------------------------------
 
 
-class NoCookieLogin:
+class GetCookie:
     '''新しいCookieを取得する or Cookieが使わないサイト'''
     def __init__(self, config_xpath, debug_mode=False):
         '''config_xpathにパスを集約させて子クラスで引き渡す'''
@@ -280,7 +282,7 @@ class NoCookieLogin:
 
         if cookies:
             self.logger.debug(f"{self.site_name} クッキーが存在します。")
-            with open('auto_login/cookies/cookie_expiry_timestamp.txt', 'w', encoding='utf-8') as file:
+            with open(f'auto_login/cookies/{self.site_name}_cookie.txt', 'w', encoding='utf-8') as file:
                 for cookie in cookies:
                     if 'expiry' in cookie:
                         expiry_timestamp = cookie['expiry']
@@ -299,12 +301,12 @@ class NoCookieLogin:
         cookies_file_path = f'cookies/{self.cookies_file_name}'
 
         # pickleデータを蓄積（ディレクトリがなければ作成）
-        with open(f'auto_login/cookies/{self.site_name}_cookies.pkl', 'wb') as file:
+        with open(f'auto_login/cookies/{self.cookies_file_name}', 'wb') as file:
             pickle.dump(cookies, file)
 
         self.logger.debug(f"{self.site_name} Cookie、保存完了。")
 
-        with open(f'auto_login/cookies/{self.site_name}_cookies.pkl', 'rb') as file:
+        with open(f'auto_login/cookies/{self.cookies_file_name}', 'rb') as file:
             cookies = pickle.load(file)
 
         # 読み込んだデータを表示

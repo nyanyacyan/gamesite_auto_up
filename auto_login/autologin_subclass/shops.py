@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 import os
 
 # 自作モジュール
-from auto_login.cookie_process_login import NoCookieLogin
+from auto_login.getCookie import GetCookie
 
 load_dotenv()  # .env ファイルから環境変数を読み込む
 
@@ -21,7 +21,7 @@ load_dotenv()  # .env ファイルから環境変数を読み込む
 # 1----------------------------------------------------------------------------------
 
 
-class Gametrade(NoCookieLogin):
+class Gametrade(GetCookie):
     def __init__(self, debug_mode=False):
         # 親クラスにて定義した引数をここで引き渡す
         # configの内容をここで全て定義
