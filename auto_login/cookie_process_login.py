@@ -30,7 +30,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 
 # 自作モジュール
-from auto_login.solve_recaptcha import SolverRecaptcha
+from auto_login.solve_recaptcha import RecaptchaBreakthrough
 from logger.debug_logger import Logger
 
 load_dotenv()
@@ -51,7 +51,7 @@ class NoCookieLogin:
         self.debug_mode = debug_mode
 
         chrome_options = Options()
-        chrome_options.add_argument("--headless")  # ヘッドレスモードで実行
+        # chrome_options.add_argument("--headless")  # ヘッドレスモードで実行
         chrome_options.add_argument("--window-size=1680,1200")  # ウィンドウサイズの指定
 
         # ChromeDriverManagerを使用して自動的に適切なChromeDriverをダウンロードし、サービスを設定
@@ -78,22 +78,18 @@ class NoCookieLogin:
         self.cookies_file_name = config_xpath["cookies_file_name"]
 
         # SolverRecaptchaクラスを初期化
-        self.recaptcha_solver = SolverRecaptcha(self.chrome)
+        self.recaptcha_breakthrough = RecaptchaBreakthrough(self.chrome)
 
 # ----------------------------------------------------------------------------------
 
     # 同期的なログイン
     def open_site(self):
-        '''
-        Cookieで開かない際に使うメソッド
-        '''
+        '''Cookieで開かない際に使うメソッド'''
         self.logger.info(f"{self.site_name} Cookie作成を開始")
         self.chrome.get(self.login_url)
 
         # 現在のURL
-        self.logger.debug(f"{self.site_name} URL: {self.self.current_url}")
-
-
+        self.logger.debug(f"{self.site_name} URL: {self.current_url}")
 
         # userid_xpathが出てくるまで待機
         try:
@@ -102,6 +98,8 @@ class NoCookieLogin:
 
         except TimeoutException as e:
             print(f"タイムアウトエラー:{e}")
+
+        time.sleep(5)
 
 
 # ----------------------------------------------------------------------------------
@@ -113,6 +111,8 @@ class NoCookieLogin:
             userid_field = self.chrome.find_element_by_xpath(self.userid_xpath)
             userid_field.send_keys(self.userid)
             self.logger.debug(f"{self.site_name} ID入力完了")
+
+            time.sleep(1)
 
             password_field = self.chrome.find_element_by_xpath(self.password_xpath)
             password_field.send_keys(self.password)
@@ -142,7 +142,6 @@ class NoCookieLogin:
 
     def login_checkbox(self):
         '''チェックボックスにチェックいれる'''
-        # リファクタリングする
         # ログインを維持するチェックボックスを探す
         try:
             login_checkbox = self.chrome.find_element_by_xpath(self.login_checkbox_xpath)
@@ -172,6 +171,9 @@ class NoCookieLogin:
     def recaptcha_process(self):
         '''reCAPTCHA検知してある場合は2CAPTCHAメソッドを実行'''
         try:
+            # 現在のURL
+            current_url = self.chrome.current_url
+            self.logger.debug(current_url)
             # sitekeyを検索
             elements = self.chrome.find_elements_by_css_selector('[data-sitekey]')
             if len(elements) > 0:
@@ -180,13 +182,12 @@ class NoCookieLogin:
 
                 # solveRecaptchaファイルを実行
                 try:
-                    self.recaptcha_solver.handle_recaptcha(self.current_url)
+                    self.recaptcha_breakthrough.recaptchaIfNeeded(current_url)
                     self.logger.info(f"{self.site_name} reCAPTCHA処理、完了")
 
                 except Exception as e:
-                    self.logger.error(f"{self.site_name} reCAPTCHA処理に失敗しました")
+                    self.logger.error(f"{self.site_name} reCAPTCHA処理に失敗しました: {e}")
                     # ログイン失敗をライン通知
-                    self.line_notify.line_notify(f"{self.site_name} ログインが正しくできませんでした")
 
 
                 self.logger.debug(f"{self.site_name} クリック開始")
@@ -236,7 +237,7 @@ class NoCookieLogin:
 
 
         except Exception as e:
-            self.logger.error(f"{self.site_name} handle_recaptcha を実行中にエラーが発生しました: {e}")
+            self.logger.error(f"{self.site_name} 2CAPTCHAの処理を実行中にエラーが発生しました: {e}")
 
         time.sleep(1)
 
@@ -262,8 +263,7 @@ class NoCookieLogin:
 
 
     def save_cookies(self):
-        '''  Cookieを取得する
-        '''
+        '''  Cookieを取得する'''
         self.logger.debug(f"{self.site_name} Cookieの取得開始")
         # cookiesは、通常、複数のCookie情報を含む大きなリスト担っている
         # 各Cookieはキーと値のペアを持つ辞書（またはオブジェクト）として格納されてる
@@ -327,4 +327,4 @@ class NoCookieLogin:
         loop = asyncio.get_running_loop()
 
         # ブロッキング、実行タイミング、並列処理などを適切に行えるように「functools」にてワンクッション置いて実行
-        await loop.run_in_executor(executor, functools.partial(self.no_cookie_login))
+        await loop.run_in_executor(None, functools.partial(self.no_cookie_login))

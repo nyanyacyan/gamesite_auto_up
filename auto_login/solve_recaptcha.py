@@ -2,18 +2,9 @@
 # ----------------------------------------------------------------------------------
 # recaptcha回避　クラス
 # 2023/1/20制作
+# 2023/3/8修正
 # 仮想環境 / source autologin-v1/bin/activate
 
-
-#---バージョン---
-# Python==3.8.10
-# selenium==4.1
-# headlessモード
-# Chromedriver==ChromeDriverManager
-
-
-#---流れ--
-# ２captchaからトークン取得→ トークンをtextareaに入力→ ログイン
 # ----------------------------------------------------------------------------------
 import sys
 import os
@@ -27,7 +18,7 @@ from logger.debug_logger import Logger
 
 load_dotenv()
 
-class SolverRecaptcha:
+class RecaptchaBreakthrough:
     def __init__(self, chrome_driver, debug_mode=False):
         # Loggerクラスを初期化
         debug_mode = os.getenv('DEBUG_MODE', 'False') == 'True'
@@ -40,10 +31,13 @@ class SolverRecaptcha:
         self.chrome = chrome_driver
 
         # 2captcha APIkeyを.envから取得
-        self.api_key = os.getenv('APIKEY_2CAPTCHA')
+        self.api_key = os.getenv('TWOCAPTCHA_KEY')
 
 
-    def drawIfNeeded(self, sitekey, url):
+# ----------------------------------------------------------------------------------
+
+
+    def checkKey(self, sitekey, url):
         solver = TwoCaptcha(self.api_key)
 
         try:
@@ -58,9 +52,10 @@ class SolverRecaptcha:
             return result
 
 
+# ----------------------------------------------------------------------------------
 
 
-    def handle_recaptcha(self, current_url):
+    def recaptchaIfNeeded(self, current_url):
         try:
             self.logger.debug("display:noneを削除開始")
 
@@ -82,7 +77,6 @@ class SolverRecaptcha:
 
         except Exception as e:
             self.logger.error(f"display:noneの削除に失敗しましたので確認が必要です:{e}")
-            self.line_notify.line_notify(f"{e}:詳細はログにてご確認ください")
             sys.exit(1)
 
 
@@ -97,7 +91,7 @@ class SolverRecaptcha:
 
         self.logger.info("2captcha開始")
 
-        result = self.drawIfNeeded(
+        result = self.checkKey(
             data_sitekey_value,
             current_url
         )
