@@ -58,3 +58,6 @@ venv/
 
 # 仮想環境を直接指定
 venv_gamesite_auto_up/
+
+# pickleデータ
+*.pkl
