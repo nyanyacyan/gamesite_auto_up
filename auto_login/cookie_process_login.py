@@ -42,6 +42,7 @@ executor = ThreadPoolExecutor(max_workers=5)
 
 
 class NoCookieLogin:
+    '''新しいCookieを取得する or Cookieが使わないサイト'''
     def __init__(self, config_xpath, debug_mode=False):
         '''config_xpathにパスを集約させて子クラスで引き渡す'''
         # Loggerクラスを初期化
@@ -273,18 +274,22 @@ class NoCookieLogin:
         # クッキーの存在を確認
         # 「expiry」は有効期限 →Columnに存在する
         # 各Cookieから['name']['expiry']を抽出してテキストに保存
+        #! 必ずテキストを確認してCookieの有効期限を確認する
+        #! 一番期日が短いものについて必ず確認してCookieの使用期間を明確にする
+        #! _gid:24時間の有効期限があり、訪問者の1日ごとの行動を追跡
+
         if cookies:
             self.logger.debug(f"{self.site_name} クッキーが存在します。")
-            with open('cookie_expiry_timestamp.txt', 'w', encoding='utf-8') as file:
+            with open('auto_login/cookies/cookie_expiry_timestamp.txt', 'w', encoding='utf-8') as file:
                 for cookie in cookies:
                     if 'expiry' in cookie:
                         expiry_timestamp = cookie['expiry']
 
                         # UNIXタイムスタンプを datetime オブジェクトに変換
-                        datetime.datetime.utcfromtimestamp(expiry_timestamp)
+                        expiry_datetime = datetime.datetime.utcfromtimestamp(expiry_timestamp)
 
                         # テキストに書き込めるようにクリーニング
-                        cookie_expiry_timestamp = f"Cookie: {cookie['name']} の有効期限は「{expiry_timestamp}」\ｎ"
+                        cookie_expiry_timestamp = f"Cookie: {cookie['name']} の有効期限は「{expiry_datetime}」\n"
                         file.write(cookie_expiry_timestamp)
 
         else:
@@ -294,10 +299,16 @@ class NoCookieLogin:
         cookies_file_path = f'cookies/{self.cookies_file_name}'
 
         # pickleデータを蓄積（ディレクトリがなければ作成）
-        with open(cookies_file_path, 'w') as file:
+        with open('auto_login/cookies.pkl', 'wb') as file:
             pickle.dump(cookies, file)
 
         self.logger.debug(f"{self.site_name} Cookie、保存完了。")
+
+        with open('auto_login/cookies.pkl', 'rb') as file:
+            cookies = pickle.load(file)
+
+        # 読み込んだデータを表示
+        self.logger.debug(f"cookies: {cookies} \nCookieの存在を確認。")
 
 
 # ----------------------------------------------------------------------------------
