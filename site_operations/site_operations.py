@@ -184,6 +184,86 @@ class SiteOperations:
 
 # ----------------------------------------------------------------------------------
 
+#! deployする際に「reCAPTCHAあり」の場合に利用
+#TODO 手直し必要
+
+    def recap_deploy(self):
+        '''reCAPTCHA検知してある場合は2CAPTCHAメソッドを実行'''
+        try:
+            # 現在のURL
+            current_url = self.chrome.current_url
+            self.logger.debug(current_url)
+            # sitekeyを検索
+            elements = self.chrome.find_elements_by_css_selector('[data-sitekey]')
+            if len(elements) > 0:
+                self.logger.info(f"{self.site_name} reCAPTCHA処理実施中")
+
+
+                # solveRecaptchaファイルを実行
+                try:
+                    self.recaptcha_breakthrough.recaptchaIfNeeded(current_url)
+                    self.logger.info(f"{self.site_name} reCAPTCHA処理、完了")
+
+                except Exception as e:
+                    self.logger.error(f"{self.site_name} reCAPTCHA処理に失敗しました: {e}")
+                    # ログイン失敗をライン通知
+
+
+                self.logger.debug(f"{self.site_name} クリック開始")
+
+                # deploy_btn 要素を見つける
+                deploy_btn = self.chrome.find_element_by_xpath(self.deploy_btn_xpath)
+
+                # ボタンが無効化されているか確認し、無効化されていれば有効にする
+                self.chrome.execute_script("document.getElementByXPATH(self.deploy_btn_xpath).disabled = false;")
+
+                # ボタンをクリックする
+                deploy_btn.click()
+
+            else:
+                self.logger.info(f"{self.site_name} reCAPTCHAなし")
+
+                login_button = self.chrome.find_element_by_xpath(self.login_button_xpath)
+                self.logger.debug(f"{self.site_name} ボタン捜索完了")
+
+                deploy_btn.click()
+                self.logger.debug(f"{self.site_name} クリック完了")
+
+        # recaptchaなし
+        except NoSuchElementException:
+            self.logger.info(f"{self.site_name} reCAPTCHAなし")
+
+            login_button = self.chrome.find_element_by_xpath(self.login_button_xpath)
+            self.logger.debug(f"{self.site_name} ボタン捜索完了")
+
+
+            # ログインボタンクリック
+            try:
+                deploy_btn.click()
+                self.logger.debug(f"{self.site_name} クリック完了")
+
+            except ElementNotInteractableException:
+                self.chrome.execute_script("arguments[0].click();", login_button)
+                self.logger.debug(f"{self.site_name} JavaScriptを使用してクリック実行")
+
+        # ページ読み込み待機
+        try:
+            # ログインした後のページ読み込みの完了確認
+            WebDriverWait(self.chrome, 5).until(
+            lambda driver: driver.execute_script('return document.readyState') == 'complete'
+            )
+            self.logger.debug(f"{self.site_name} ログインページ読み込み完了")
+
+
+        except Exception as e:
+            self.logger.error(f"{self.site_name} 2CAPTCHAの処理を実行中にエラーが発生しました: {e}")
+
+        time.sleep(3)
+
+
+
+# ----------------------------------------------------------------------------------
+
 
     def deploy_btnPush(self):
         '''出品ページにあるすべての入力が完了したあとに押す「出品する」というボタン→ deploy_btn を見つけて押す'''
