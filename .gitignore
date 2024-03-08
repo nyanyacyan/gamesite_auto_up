@@ -61,4 +61,4 @@ venv_gamesite_auto_up/
 
 # pickleデータ
 *.pkl
-cookie.pkl
+*_cookie.pkl

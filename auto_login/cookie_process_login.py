@@ -53,7 +53,7 @@ class NoCookieLogin:
 
         chrome_options = Options()
         # chrome_options.add_argument("--headless")  # ヘッドレスモードで実行
-        chrome_options.add_argument("--window-size=1680,1200")  # ウィンドウサイズの指定
+        chrome_options.add_argument("--window-size=1280,1000")  # ウィンドウサイズの指定
 
         # ChromeDriverManagerを使用して自動的に適切なChromeDriverをダウンロードし、サービスを設定
         service = Service(ChromeDriverManager().install())
@@ -163,7 +163,7 @@ class NoCookieLogin:
         except UnboundLocalError:
             self.logger.debug(f"{self.site_name} チェックボタンなし")
 
-        time.sleep(1)
+        time.sleep(3)
 
 
 # ----------------------------------------------------------------------------------
@@ -240,7 +240,7 @@ class NoCookieLogin:
         except Exception as e:
             self.logger.error(f"{self.site_name} 2CAPTCHAの処理を実行中にエラーが発生しました: {e}")
 
-        time.sleep(1)
+        time.sleep(10)
 
 
 # ----------------------------------------------------------------------------------
@@ -299,12 +299,12 @@ class NoCookieLogin:
         cookies_file_path = f'cookies/{self.cookies_file_name}'
 
         # pickleデータを蓄積（ディレクトリがなければ作成）
-        with open('auto_login/cookies.pkl', 'wb') as file:
+        with open(f'auto_login/cookies/{self.site_name}_cookies.pkl', 'wb') as file:
             pickle.dump(cookies, file)
 
         self.logger.debug(f"{self.site_name} Cookie、保存完了。")
 
-        with open('auto_login/cookies.pkl', 'rb') as file:
+        with open(f'auto_login/cookies/{self.site_name}_cookies.pkl', 'rb') as file:
             cookies = pickle.load(file)
 
         # 読み込んだデータを表示
