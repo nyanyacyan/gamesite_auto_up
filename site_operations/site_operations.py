@@ -37,13 +37,16 @@ load_dotenv()
 
 executor = ThreadPoolExecutor(max_workers=5)
 
+# スクショ用のタイムスタンプ
+timestamp = datetime.now().strftime("%m-%d_%H-%M")
+
 
 # ----------------------------------------------------------------------------------
 
 
 class SiteOperations:
     '''Cookie利用してログインして処理を実行するクラス'''
-    def __init__(self, config_xpath, debug_mode=False):
+    def __init__(self, config, debug_mode=False):
         '''config_xpathにパスを集約させて子クラスで引き渡す'''
         # Loggerクラスを初期化
         debug_mode = os.getenv('DEBUG_MODE', 'False') == 'True'
@@ -64,23 +67,25 @@ class SiteOperations:
         # 現在のURLを示すメソッドを定義
         self.current_url = self.chrome.current_url
 
-        # メソッド全体で使えるように定義
-        self.site_name = config_xpath["site_name"]
+        # メソッド全体で使えるように定義（デバッグで使用）
+        self.site_name = config["site_name"]
 
         #! 使ってないものは削除する
         # xpath全体で使えるように初期化
-        self.main_url = config_xpath["main_url"]
-        self.userid = config_xpath["userid"]
-        self.password = config_xpath["password"]
-        self.userid_xpath = config_xpath["userid_xpath"]
-        self.password_xpath = config_xpath["password_xpath"]
-        self.login_button_xpath = config_xpath["login_button_xpath"]
-        self.login_checkbox_xpath = config_xpath["login_checkbox_xpath"]
-        self.user_element_xpath = config_xpath["user_element_xpath"]
-        self.cookies_file_name = config_xpath["cookies_file_name"]
 
-        self.lister_btn_xpath = config_xpath["lister_btn_xpath"]
-        self.deploy_btn_xpath = config_xpath["deploy_btn_xpath"]
+        # self.userid = config["userid"]
+        # self.password = config["password"]
+        # self.userid_xpath = config["userid_xpath"]
+        # self.password_xpath = config["password_xpath"]
+        # self.login_button_xpath = config["login_button_xpath"]
+        # self.login_checkbox_xpath = config["login_checkbox_xpath"]
+        # self.user_element_xpath = config["user_element_xpath"]
+
+        #* 利用してるものconfig
+        self.cookies_file_name = config["cookies_file_name"]
+        self.main_url = config["main_url"]
+        self.lister_btn_xpath = config["lister_btn_xpath"]
+        self.deploy_btn_xpath = config["deploy_btn_xpath"]
 
         # SolverRecaptchaクラスを初期化
         self.recaptcha_breakthrough = RecaptchaBreakthrough(self.chrome)
@@ -176,7 +181,8 @@ class SiteOperations:
             self.logger.error(f"{self.site_name} 処理中にエラーが発生: {e}")
 
         #TODO スクリーンショット
-        self.chrome.save_screenshot('lister_page.png')
+        filename = f"DebugScreenshot/lister_page_{timestamp}.png"
+        self.chrome.save_screenshot(filename)
         self.logger.debug(f"{self.site_name} 出品ページにスクショ撮影")
 
         time.sleep(1)
@@ -289,8 +295,8 @@ class SiteOperations:
             self.logger.error(f"{self.site_name} 実行処理中にエラーが発生: {e}")
 
         #TODO スクリーンショット
-        self.chrome.save_screenshot('deploy_btnPush_after_page.png')
-        self.logger.debug(f"{self.site_name} deploy_btnPush_after_pageをスクショ撮影")
+        filename = f"DebugScreenshot/deploy_btnPush_after_{timestamp}.png"
+        self.chrome.save_screenshot(filename)
 
         time.sleep(1)
 
@@ -300,8 +306,25 @@ class SiteOperations:
 #TODO メインメソッド
 #TODO ここにすべてを集約させる
 
+    def site_operation(self):
+        '''メインメソッド'''
+        self.logger.debug(f"{__name__}: 処理開始")
+
+        self.cookie_login()
+        self.lister_btnPush()
+
+        self.logger.debug(f"{__name__}: 処理完了")
+
+        self.chrome.quit()
+
 
 # ----------------------------------------------------------------------------------
 
 
 #TODO メインメソッドを非同期処理に変換
+    # 同期メソッドを非同期処理に変換
+    async def site_operation_async(self):
+        loop = asyncio.get_running_loop()
+
+        # ブロッキング、実行タイミング、並列処理などを適切に行えるように「functools」にてワンクッション置いて実行
+        await loop.run_in_executor(None, functools.partial(self.site_operation))
