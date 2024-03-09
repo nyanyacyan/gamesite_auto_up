@@ -62,3 +62,10 @@ venv_gamesite_auto_up/
 # pickleデータ
 *.pkl
 *_cookie.pkl
+
+# デバッグ用のスクショフォルダ
+DebugScreenshot/
+
+# pycache
+__pycache__/
+*.pyc
