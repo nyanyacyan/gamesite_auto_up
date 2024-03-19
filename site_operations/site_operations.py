@@ -47,25 +47,16 @@ timestamp = datetime.now().strftime("%m-%d_%H-%M")
 # Cookie利用してログインして処理を実行するクラス
 
 class SiteOperations:
-    def __init__(self, chrome, main_url, config,  debug_mode=False):
+    def __init__(self, chrome, main_url, cookies_file_name, config,  debug_mode=False):
         self.logger = self.setup_logger(debug_mode=debug_mode)
         self.chrome = chrome
         self.main_url = main_url
+        self.cookies_file_name = cookies_file_name
 
         #! 使ってないものは削除する
-        # xpath全体で使えるように初期化
-
-        # self.userid = config["userid"]
-        # self.password = config["password"]
-        # self.userid_xpath = config["userid_xpath"]
-        # self.password_xpath = config["password_xpath"]
-        # self.login_button_xpath = config["login_button_xpath"]
-        # self.login_checkbox_xpath = config["login_checkbox_xpath"]
-        # self.user_element_xpath = config["user_element_xpath"]
 
         #* 利用してるものconfig
         self.site_name = config["site_name"]
-        self.cookies_file_name = config["cookies_file_name"]
         self.lister_btn_xpath = config["lister_btn_xpath"]
         self.deploy_btn_xpath = config["deploy_btn_xpath"]
 

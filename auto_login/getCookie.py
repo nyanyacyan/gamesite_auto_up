@@ -44,7 +44,7 @@ executor = ThreadPoolExecutor(max_workers=5)
 # '''新しいCookieを取得する or Cookieが使わないサイト'''
 
 class GetCookie:
-    def __init__(self, loginurl, userid, password, config, debug_mode=False):
+    def __init__(self,  loginurl, userid, password, cookies_file_name, config, debug_mode=False):
         self.logger = self.setup_logger(debug_mode=debug_mode)
         chrome_options = Options()
         chrome_options.add_argument("--headless")  # ヘッドレスモードで実行
@@ -59,6 +59,7 @@ class GetCookie:
         self.login_url = loginurl
         self.userid = userid
         self.password = password
+        self.cookies_file_name = cookies_file_name
 
 
         # xpath全体で使えるように初期化
@@ -68,7 +69,6 @@ class GetCookie:
         self.login_button_xpath = config["login_button_xpath"]
         self.login_checkbox_xpath = config["login_checkbox_xpath"]
         self.user_element_xpath = config["user_element_xpath"]
-        self.cookies_file_name = config["cookies_file_name"]
 
         # SolverRecaptchaクラスを初期化
         self.recaptcha_breakthrough = RecaptchaBreakthrough(self.chrome)
@@ -269,6 +269,7 @@ class GetCookie:
     def save_cookies(self):
         '''  Cookieを取得する'''
         self.logger.debug(f"{self.site_name} Cookieの取得開始")
+        self.logger.debug(f"cookies_file_name :{self.cookies_file_name}")
         # cookiesは、通常、複数のCookie情報を含む大きなリスト担っている
         # 各Cookieはキーと値のペアを持つ辞書（またはオブジェクト）として格納されてる
         cookies = self.chrome.get_cookies()
@@ -299,10 +300,10 @@ class GetCookie:
             self.logger.debug(f"{self.site_name} にはクッキーが存在しません。")
 
         # Cookieのディレクトリを指定
-        cookies_file_path = f'cookies/{self.cookies_file_name}'
+        cookies_file_path = f'auto_login/cookies/{self.cookies_file_name}'
 
         # pickleデータを蓄積（ディレクトリがなければ作成）
-        with open(f'auto_login/cookies/{self.cookies_file_name}', 'wb') as file:
+        with open(cookies_file_path, 'wb') as file:
             pickle.dump(cookies, file)
 
         self.logger.debug(f"{self.site_name} Cookie、保存完了。")
@@ -344,3 +345,6 @@ class GetCookie:
 
         # ブロッキング、実行タイミング、並列処理などを適切に行えるように「functools」にてワンクッション置いて実行
         await loop.run_in_executor(None, functools.partial(self.cookie_get))
+
+
+# ----------------------------------------------------------------------------------

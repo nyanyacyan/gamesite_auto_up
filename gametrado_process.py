@@ -17,14 +17,16 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 # 自作モジュール
 from logger.debug_logger import Logger
-from auto_login.autologin_subclass.shops import Gametrade
 from site_operations.sub_shops import OpGametrade
 
 # ----------------------------------------------------------------------------------
 # gui作成時にはinitにIDとPasswordを追加して渡せるようにする
 
 class GametradeProcess:
-    def __init__(self, main_url, debug_mode=False):
+    def __init__(self, main_url, cookies_file_name, debug_mode=False):
+        self.main_url = main_url
+        self.cookies_file_name = cookies_file_name
+
         chrome_options = Options()
         chrome_options.add_argument("--headless")  # ヘッドレスモードで実行
         chrome_options.add_argument("--window-size=1000,800")  # ウィンドウサイズの指定
@@ -39,13 +41,13 @@ class GametradeProcess:
         self.logger = self.setup_logger(debug_mode=debug_mode)
 
         # #! GUIで呼び出すときに必要な引数
-        # self.login_url = login_url
+        # self.main_url = main_url
         # self.userid = userid
         # self.password = password
 
 
         #! テストするインスタンス生成
-        self.site_operations = OpGametrade(main_url)
+        self.site_operations = OpGametrade(self.chrome,main_url, cookies_file_name)
 
 
 # ----------------------------------------------------------------------------------
@@ -60,24 +62,23 @@ class GametradeProcess:
 # ----------------------------------------------------------------------------------
 #? ここにカプセル化した内容をいれる
 
-    async def _process(self):
+    async def process(self):
         self.logger.info(" スクレイピング 開始")
         self.logger.debug("サイトを開いてます。")
-        self.chrome.get(self.login_url)
+        self.chrome.get(self.main_url)
 
         current_url = self.chrome.current_url
         self.logger.debug(f"URL: {current_url}")
         time.sleep(1)
 
-        self.logger.info(f"{self.site_name} Cookie作成を開始")
-        self.chrome.get(self.login_url)
+        self.logger.info(f"{__name__} Cookie作成を開始")
+        self.chrome.get(self.main_url)
 
         # 現在のURL
-        self.logger.debug(f"{self.site_name} URL: {self.current_url}")
+        self.logger.debug(f"{__name__} URL: {self.current_url}")
 
 
         #! ここからインスタンスを入れていく
-        await self.get_cookie.getOrElse()
         await self.site_operations.OpGetOrElse()
 
         self.logger.info(" 処理 完了")
