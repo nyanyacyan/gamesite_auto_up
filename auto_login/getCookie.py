@@ -41,47 +41,47 @@ executor = ThreadPoolExecutor(max_workers=5)
 
 
 # ----------------------------------------------------------------------------------
-
+# '''新しいCookieを取得する or Cookieが使わないサイト'''
 
 class GetCookie:
-    '''新しいCookieを取得する or Cookieが使わないサイト'''
-    def __init__(self, config_xpath, debug_mode=False):
-        '''config_xpathにパスを集約させて子クラスで引き渡す'''
-        # Loggerクラスを初期化
-        debug_mode = os.getenv('DEBUG_MODE', 'False') == 'True'
-        self.logger_instance = Logger(__name__, debug_mode=debug_mode)
-        self.logger = self.logger_instance.get_logger()
-        self.debug_mode = debug_mode
-
+    def __init__(self, loginurl, userid, password, config, debug_mode=False):
+        self.logger = self.setup_logger(debug_mode=debug_mode)
         chrome_options = Options()
-        # chrome_options.add_argument("--headless")  # ヘッドレスモードで実行
-        chrome_options.add_argument("--window-size=1280,1000")  # ウィンドウサイズの指定
-
-        # ChromeDriverManagerを使用して自動的に適切なChromeDriverをダウンロードし、サービスを設定
+        chrome_options.add_argument("--headless")  # ヘッドレスモードで実行
+        chrome_options.add_argument("--window-size=1000,800")  # ウィンドウサイズの指定
+        # chrome_options.add_extension('data/uBlock-Origin.crx')  # iframe対策の広告ブロッカー
         service = Service(ChromeDriverManager().install())
-
-        # WebDriverインスタンスを生成
         self.chrome = webdriver.Chrome(service=service, options=chrome_options)
 
         # 現在のURLを示すメソッドを定義
         self.current_url = self.chrome.current_url
 
-        # メソッド全体で使えるように定義
-        self.site_name = config_xpath["site_name"]
+        self.login_url = loginurl
+        self.userid = userid
+        self.password = password
+
 
         # xpath全体で使えるように初期化
-        self.login_url = config_xpath["login_url"]
-        self.userid = config_xpath["userid"]
-        self.password = config_xpath["password"]
-        self.userid_xpath = config_xpath["userid_xpath"]
-        self.password_xpath = config_xpath["password_xpath"]
-        self.login_button_xpath = config_xpath["login_button_xpath"]
-        self.login_checkbox_xpath = config_xpath["login_checkbox_xpath"]
-        self.user_element_xpath = config_xpath["user_element_xpath"]
-        self.cookies_file_name = config_xpath["cookies_file_name"]
+        self.site_name = config["site_name"]
+        self.userid_xpath = config["userid_xpath"]
+        self.password_xpath = config["password_xpath"]
+        self.login_button_xpath = config["login_button_xpath"]
+        self.login_checkbox_xpath = config["login_checkbox_xpath"]
+        self.user_element_xpath = config["user_element_xpath"]
+        self.cookies_file_name = config["cookies_file_name"]
 
         # SolverRecaptchaクラスを初期化
         self.recaptcha_breakthrough = RecaptchaBreakthrough(self.chrome)
+
+
+# ----------------------------------------------------------------------------------
+# Loggerセットアップ
+
+    def setup_logger(self, debug_mode=False):
+        debug_mode = os.getenv('DEBUG_MODE', 'False') == 'True'
+        logger_instance = Logger(__name__, debug_mode=debug_mode)
+        return logger_instance.get_logger()
+
 
 # ----------------------------------------------------------------------------------
 
@@ -318,7 +318,7 @@ class GetCookie:
 
 
     # 非同期化させるために、すべてのメソッドをとりまとめ
-    def no_cookie_login(self):
+    def cookie_get(self):
         '''ログインしてCookieを取得する。'''
 
         self.logger.debug(f"{__name__}: 処理開始")
@@ -339,8 +339,8 @@ class GetCookie:
 
 
     # 同期メソッドを非同期処理に変換
-    async def no_cookie_login_async(self):
+    async def cookie_get_async(self):
         loop = asyncio.get_running_loop()
 
         # ブロッキング、実行タイミング、並列処理などを適切に行えるように「functools」にてワンクッション置いて実行
-        await loop.run_in_executor(None, functools.partial(self.no_cookie_login))
+        await loop.run_in_executor(None, functools.partial(self.cookie_get))

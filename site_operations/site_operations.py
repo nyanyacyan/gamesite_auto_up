@@ -6,12 +6,12 @@
 # 2023/3/9 制作
 # ----------------------------------------------------------------------------------
 import asyncio
-import datetime
 import functools
 import os
 import pickle
 import time
 import requests
+from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 
 from dotenv import load_dotenv
@@ -33,6 +33,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 from auto_login.solve_recaptcha import RecaptchaBreakthrough
 from logger.debug_logger import Logger
 
+from file_select.file_select import FileSelect
+
 load_dotenv()
 
 executor = ThreadPoolExecutor(max_workers=5)
@@ -42,33 +44,13 @@ timestamp = datetime.now().strftime("%m-%d_%H-%M")
 
 
 # ----------------------------------------------------------------------------------
-
+# Cookie利用してログインして処理を実行するクラス
 
 class SiteOperations:
-    '''Cookie利用してログインして処理を実行するクラス'''
-    def __init__(self, config, debug_mode=False):
-        '''config_xpathにパスを集約させて子クラスで引き渡す'''
-        # Loggerクラスを初期化
-        debug_mode = os.getenv('DEBUG_MODE', 'False') == 'True'
-        self.logger_instance = Logger(__name__, debug_mode=debug_mode)
-        self.logger = self.logger_instance.get_logger()
-        self.debug_mode = debug_mode
-
-        chrome_options = Options()
-        # chrome_options.add_argument("--headless")  # ヘッドレスモードで実行
-        chrome_options.add_argument("--window-size=1280,1000")  # ウィンドウサイズの指定
-
-        # ChromeDriverManagerを使用して自動的に適切なChromeDriverをダウンロードし、サービスを設定
-        service = Service(ChromeDriverManager().install())
-
-        # WebDriverインスタンスを生成
-        self.chrome = webdriver.Chrome(service=service, options=chrome_options)
-
-        # 現在のURLを示すメソッドを定義
-        self.current_url = self.chrome.current_url
-
-        # メソッド全体で使えるように定義（デバッグで使用）
-        self.site_name = config["site_name"]
+    def __init__(self, chrome, main_url, config,  debug_mode=False):
+        self.logger = self.setup_logger(debug_mode=debug_mode)
+        self.chrome = chrome
+        self.main_url = main_url
 
         #! 使ってないものは削除する
         # xpath全体で使えるように初期化
@@ -82,13 +64,22 @@ class SiteOperations:
         # self.user_element_xpath = config["user_element_xpath"]
 
         #* 利用してるものconfig
+        self.site_name = config["site_name"]
         self.cookies_file_name = config["cookies_file_name"]
-        self.main_url = config["main_url"]
         self.lister_btn_xpath = config["lister_btn_xpath"]
         self.deploy_btn_xpath = config["deploy_btn_xpath"]
 
         # SolverRecaptchaクラスを初期化
         self.recaptcha_breakthrough = RecaptchaBreakthrough(self.chrome)
+
+
+# ----------------------------------------------------------------------------------
+# Loggerセットアップ
+
+    def setup_logger(self, debug_mode=False):
+        debug_mode = os.getenv('DEBUG_MODE', 'False') == 'True'
+        logger_instance = Logger(__name__, debug_mode=debug_mode)
+        return logger_instance.get_logger()
 
 
 # ----------------------------------------------------------------------------------
@@ -276,13 +267,13 @@ class SiteOperations:
         try:
             # deploy_btnを探して押す
             self.logger.debug(" deploy_btn を特定開始")
-            lister_btn = self.chrome.find_element_by_xpath(self.deploy_btn_xpath)
+            deploy_btn = self.chrome.find_element_by_xpath(self.deploy_btn_xpath)
             self.logger.debug(" deploy_btn を発見")
 
         except NoSuchElementException as e:
             self.logger.error(f" deploy_btn が見つかりません:{e}")
 
-        lister_btn.click()
+        deploy_btn.click()
 
         try:
             # 実行した後のページ読み込みの完了確認

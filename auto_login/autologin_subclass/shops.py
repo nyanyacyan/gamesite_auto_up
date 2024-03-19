@@ -23,14 +23,14 @@ load_dotenv()  # .env ファイルから環境変数を読み込む
 
 
 class Gametrade(GetCookie):
-    def __init__(self, debug_mode=False):
+    def __init__(self, loginurl, userid, password, debug_mode=False):
+        self.login_url = loginurl
+        self.user_id = userid
+        self.password = password
         # 親クラスにて定義した引数をここで引き渡す
         # configの内容をここで全て定義
-        self.config_xpath = {
+        self.config = {
             "site_name": "GAMETRADE",
-            "login_url": os.getenv('GAME_TRADE_LOGIN_URL'),
-            "userid": os.getenv('GAME_TRADE_ID_1'),
-            "password": os.getenv('GAME_TRADE_PASS_1'),
             "userid_xpath": "//input[@id='session_email']",
             "password_xpath": "//input[@id='session_password']",
             "login_button_xpath": "//button[@type='submit']",
@@ -39,13 +39,13 @@ class Gametrade(GetCookie):
             "cookies_file_name": "game_trade_cookie_file.pkl"
         }
 
-        super().__init__(self.config_xpath, debug_mode=debug_mode)
+        super().__init__(loginurl, userid, password, self.config,  debug_mode=debug_mode)
 
     # getOrElseは実行を試み、失敗した場合は引数で指定した値を返す
     async def getOrElse(self):
         # 継承してるクラスのメソッドを非同期処理して実行
-        # initにて初期化済みのためconfig_xpathを渡すだけでOK
-        await self.no_cookie_login_async()
+        # initにて初期化済みのためconfigを渡すだけでOK
+        await self.cookie_get_async()
 
 
 # ２----------------------------------------------------------------------------------
