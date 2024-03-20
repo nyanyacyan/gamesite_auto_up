@@ -33,7 +33,6 @@ from webdriver_manager.chrome import ChromeDriverManager
 from auto_login.solve_recaptcha import RecaptchaBreakthrough
 from logger.debug_logger import Logger
 
-from file_select.file_select import FileSelect
 
 load_dotenv()
 
@@ -47,12 +46,13 @@ timestamp = datetime.now().strftime("%m-%d_%H-%M")
 # Cookie利用してログインして処理を実行するクラス
 
 class SiteOperations:
-    def __init__(self, chrome, main_url, cookies_file_name, image, config,  debug_mode=False):
+    def __init__(self, chrome, main_url, cookies_file_name, image, gametitle, config,  debug_mode=False):
         self.logger = self.setup_logger(debug_mode=debug_mode)
         self.chrome = chrome
         self.main_url = main_url
         self.cookies_file_name = cookies_file_name
         self.image = image
+        self.gametitle = gametitle
 
         #! 使ってないものは削除する
 
@@ -61,6 +61,8 @@ class SiteOperations:
         self.lister_btn_xpath = config["lister_btn_xpath"]
         self.deploy_btn_xpath = config["deploy_btn_xpath"]
         self.photo_file_input_xpath = config["photo_file_input_xpath"]
+        self.title_input_xpath = config["title_input_xpath"]
+        self.title_predict_xpath = config["title_predict_xpath"]
 
         # SolverRecaptchaクラスを初期化
         self.recaptcha_breakthrough = RecaptchaBreakthrough(self.chrome)
@@ -163,11 +165,6 @@ class SiteOperations:
 
         except Exception as e:
             self.logger.error(f"{self.site_name} 処理中にエラーが発生: {e}")
-
-        #TODO スクリーンショット
-        filename = f"DebugScreenshot/lister_page_{timestamp}.png"
-        self.chrome.save_screenshot(filename)
-        self.logger.debug(f"{self.site_name} 出品ページにスクショ撮影")
 
         time.sleep(1)
 
@@ -300,7 +297,8 @@ class SiteOperations:
 
         try:
             self.logger.debug(" self.photo_file_xpath を特定開始")
-            file_input.send_keys(self.image)
+            image_full_path = os.path.abspath(self.image)
+            file_input.send_keys(image_full_path)
             self.logger.debug(" self.photo_file_xpath を特定開始")
 
         except FileNotFoundError as e:
@@ -318,9 +316,96 @@ class SiteOperations:
         except Exception as e:
             self.logger.error(f"実行処理中にエラーが発生: {e}")
 
+        time.sleep(1)
+
+
+# ----------------------------------------------------------------------------------
+# タイトル部分を入力して予測編から指定タイトルを選択
+
+    def title_input(self):
+        try:
+            # title入力欄を探す
+            self.logger.debug(" title入力欄 を捜索開始")
+            file_input = self.chrome.find_element_by_id(self.title_input_xpath)
+            self.logger.debug(" title入力欄 を発見")
+
+        except NoSuchElementException as e:
+            self.logger.error(f" fileのアップロードの<input>要素 が見つかりません:{e}")
+
+        try:
+            self.logger.debug(" self.photo_file_xpath を特定開始")
+            file_input.send_keys(self.gametitle)
+            self.logger.debug(" self.photo_file_xpath を特定開始")
+
+        except FileNotFoundError as e:
+            self.logger.error(f" photo_file_xpath が見つかりません:{e}")
+
+        time.sleep(1)
+
+        try:
+            # 実行した後のページ読み込みの完了確認
+            WebDriverWait(self.chrome, 5).until(
+            lambda driver: driver.execute_script('return document.readyState') == 'complete'
+            )
+            self.logger.debug("ページ読み込み完了")
+
+        except Exception as e:
+            self.logger.error(f"実行処理中にエラーが発生: {e}")
+
+        time.sleep(1)
+
+        try:
+            # 入力予測欄を探す
+            self.logger.debug(self.title_predict_xpath)
+            self.logger.debug(" 入力予測欄 を捜索開始")
+            title_predict = self.chrome.find_element_by_xpath(self.title_predict_xpath)
+            self.logger.debug(" 入力予測欄 を発見")
+
+            self.logger.debug(" 入力予測欄 をクリック開始")
+            title_predict.click()
+            self.logger.debug(" 入力予測欄 をクリック終了")
+
+        except NoSuchElementException as e:
+            self.logger.debug("指定した入力予測欄 が見つかりません")
+
+            # display:noneを解除
+            self.logger.debug(" display:noneを解除 開始")
+            self.chrome.execute_script("document.getElementById('ui-id-2').style.display = 'block';")
+            self.logger.debug(" display:noneを解除 完了開始")
+
+            try:
+                # 入力予測欄を探す
+                self.logger.debug(" 入力予測欄 を捜索開始")
+                title_predict = self.chrome.find_element_by_xpath(self.title_predict_xpath)
+                self.logger.debug(" 入力予測欄 を発見")
+
+                time.sleep(1) 
+
+                self.logger.debug(" 入力予測欄 をクリック開始")
+                title_predict.click()
+                self.logger.debug(" 入力予測欄 をクリック終了")
+            except NoSuchElementException:
+                self.logger.debug("再度の検索でも入力予測欄が見つかりません")
+
+                display = self.chrome.execute_script("return document.getElementById('ui-id-2').style.display;")
+                if display != 'none':
+                    self.logger.debug("display:noneが正しく解除されました。")
+                    try:
+                        title_predict = WebDriverWait(self.chrome, 10).until(
+                            EC.visibility_of_element_located((By.XPATH, self.title_predict_xpath))
+                        )
+                        self.logger.debug("再度、入力予測欄を発見しました。")
+
+                    except TimeoutException:
+                        self.logger.debug("display:none解除後も要素が見つかりません。")
+                else:
+                    self.logger.debug("display:noneが解除されていません。")
+
+        except Exception as e:
+            self.logger.error(f"実行処理中にエラーが発生: {e}")
 
         #TODO スクリーンショット
-        filename = f"DebugScreenshot/buy_history_btnPush_{timestamp}.png"
+        filename = f"DebugScreenshot/lister_page_{timestamp}.png"
         self.chrome.save_screenshot(filename)
         self.logger.debug(f"{self.site_name} 出品ページにスクショ撮影")
 
@@ -328,8 +413,6 @@ class SiteOperations:
 
 
 # ----------------------------------------------------------------------------------
-
-
 
 
 
@@ -353,10 +436,11 @@ class SiteOperations:
         self.cookie_login()
         self.lister_btnPush()
         self.photo_upload()
+        self.title_input()
 
         self.logger.debug(f"{__name__}: 処理完了")
 
-        self.chrome.quit()
+
 
 
 # ----------------------------------------------------------------------------------
