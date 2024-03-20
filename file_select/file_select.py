@@ -68,9 +68,7 @@ class FileSelect:
         #! 使ってないものは削除する
         # xpath全体で使えるように初期化
         #* 利用してるものconfig_fileSelect
-        self.cookies_file_name = config_fileSelect["cookies_file_name"]
-        self.main_url = config_fileSelect["main_url"]
-        self.lister_btn_xpath = config_fileSelect["lister_btn_xpath"]
+
         self.photo_select_btn_xpath = config_fileSelect["photo_select_btn_xpath"]
         self.photo_file_input_xpath = config_fileSelect["photo_file_input_xpath"]
         self.photo_file_xpath = config_fileSelect["photo_file_xpath"]
@@ -88,40 +86,5 @@ class FileSelect:
 # ----------------------------------------------------------------------------------
 
 
-    def photo_upload(self):
-        '''ダイアログを介さず、そのままファイルをアップロード'''
-        try:
-            # fileのアップロードの<input>要素を探す
-            self.logger.debug(" fileのアップロードの<input>要素 を捜索開始")
-            file_input = self.chrome.find_element_by_xpath(self.photo_file_input_xpath)
-            self.logger.debug(" fileのアップロードの<input>要素 を発見")
 
-        except NoSuchElementException as e:
-            self.logger.error(f" fileのアップロードの<input>要素 が見つかりません:{e}")
-
-        try:
-            self.logger.debug(" self.photo_file_xpath を特定開始")
-            file_input.send_keys(self.photo_file_xpath)
-            self.logger.debug(" self.photo_file_xpath を特定開始")
-
-        except FileNotFoundError as e:
-            self.logger.error(f" photo_file_xpath が見つかりません:{e}")
-
-        time.sleep(1)
-
-        try:
-            # 実行した後のページ読み込みの完了確認
-            WebDriverWait(self.chrome, 5).until(
-            lambda driver: driver.execute_script('return document.readyState') == 'complete'
-            )
-            self.logger.debug(f"{self.site_name} 次のページ読み込み完了")
-
-        except Exception as e:
-            self.logger.error(f"{self.site_name} 実行処理中にエラーが発生: {e}")
-
-        #TODO スクリーンショット
-        filename = f"DebugScreenshot/photo_select_btnPush_after_{timestamp}.png"
-        self.chrome.save_screenshot(filename)
-
-        time.sleep(1)
 

@@ -23,12 +23,13 @@ from site_operations.sub_shops import OpGametrade
 # gui作成時にはinitにIDとPasswordを追加して渡せるようにする
 
 class GametradeProcess:
-    def __init__(self, main_url, cookies_file_name, debug_mode=False):
+    def __init__(self, main_url, cookies_file_name, image, debug_mode=False):
         self.main_url = main_url
         self.cookies_file_name = cookies_file_name
+        self.image = image
 
         chrome_options = Options()
-        chrome_options.add_argument("--headless")  # ヘッドレスモードで実行
+        # chrome_options.add_argument("--headless")  # ヘッドレスモードで実行
         chrome_options.add_argument("--window-size=1000,800")  # ウィンドウサイズの指定
         chrome_options.add_extension('data/uBlock-Origin.crx')  # iframe対策の広告ブロッカー
         service = Service(ChromeDriverManager().install())

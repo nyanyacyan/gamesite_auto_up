@@ -47,11 +47,12 @@ timestamp = datetime.now().strftime("%m-%d_%H-%M")
 # Cookie利用してログインして処理を実行するクラス
 
 class SiteOperations:
-    def __init__(self, chrome, main_url, cookies_file_name, config,  debug_mode=False):
+    def __init__(self, chrome, main_url, cookies_file_name, image, config,  debug_mode=False):
         self.logger = self.setup_logger(debug_mode=debug_mode)
         self.chrome = chrome
         self.main_url = main_url
         self.cookies_file_name = cookies_file_name
+        self.image = image
 
         #! 使ってないものは削除する
 
@@ -59,6 +60,7 @@ class SiteOperations:
         self.site_name = config["site_name"]
         self.lister_btn_xpath = config["lister_btn_xpath"]
         self.deploy_btn_xpath = config["deploy_btn_xpath"]
+        self.photo_file_input_xpath = config["photo_file_input_xpath"]
 
         # SolverRecaptchaクラスを初期化
         self.recaptcha_breakthrough = RecaptchaBreakthrough(self.chrome)
@@ -251,8 +253,8 @@ class SiteOperations:
 
 
 # ----------------------------------------------------------------------------------
-
 #! 「reCAPTCHAなし」でdeploy
+
     def deploy_btnPush(self):
         '''出品ページにあるすべての入力が完了したあとに押す「出品する」というボタン→ deploy_btn を見つけて押す'''
         try:
@@ -284,6 +286,62 @@ class SiteOperations:
 
 
 # ----------------------------------------------------------------------------------
+# '''ダイアログを介さず、そのままファイルをアップロード'''
+
+    def photo_upload(self):
+        try:
+            # fileのアップロードの<input>要素を探す
+            self.logger.debug(" fileのアップロードの<input>要素 を捜索開始")
+            file_input = self.chrome.find_element_by_id(self.photo_file_input_xpath)
+            self.logger.debug(" fileのアップロードの<input>要素 を発見")
+
+        except NoSuchElementException as e:
+            self.logger.error(f" fileのアップロードの<input>要素 が見つかりません:{e}")
+
+        try:
+            self.logger.debug(" self.photo_file_xpath を特定開始")
+            file_input.send_keys(self.image)
+            self.logger.debug(" self.photo_file_xpath を特定開始")
+
+        except FileNotFoundError as e:
+            self.logger.error(f" photo_file_xpath が見つかりません:{e}")
+
+        time.sleep(1)
+
+        try:
+            # 実行した後のページ読み込みの完了確認
+            WebDriverWait(self.chrome, 5).until(
+            lambda driver: driver.execute_script('return document.readyState') == 'complete'
+            )
+            self.logger.debug("ページ読み込み完了")
+
+        except Exception as e:
+            self.logger.error(f"実行処理中にエラーが発生: {e}")
+
+
+        #TODO スクリーンショット
+        filename = f"DebugScreenshot/buy_history_btnPush_{timestamp}.png"
+        self.chrome.save_screenshot(filename)
+        self.logger.debug(f"{self.site_name} 出品ページにスクショ撮影")
+
+        time.sleep(1)
+
+
+# ----------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #TODO メインメソッド
 #TODO ここにすべてを集約させる
@@ -294,6 +352,7 @@ class SiteOperations:
 
         self.cookie_login()
         self.lister_btnPush()
+        self.photo_upload()
 
         self.logger.debug(f"{__name__}: 処理完了")
 
