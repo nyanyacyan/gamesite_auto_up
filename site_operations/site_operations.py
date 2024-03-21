@@ -592,7 +592,15 @@ class SiteOperations:
                 deploy_btn = self.chrome.find_element_by_xpath(self.deploy_btn_xpath)
 
                 # ボタンが無効化されているか確認し、無効化されていれば有効にする
+<<<<<<< HEAD
+<<<<<<< HEAD
+                self.chrome.execute_script("document.getElementByXPATH(self.deploy_btn_xpath).disabled = false;")
+=======
                 # self.chrome.execute_script("document.getElementByXPATH(self.deploy_btn_xpath).disabled = false;")
+>>>>>>> 4346100b5c7c891dcd38f08bd909138f3437d368
+=======
+                # self.chrome.execute_script("document.getElementByXPATH(self.deploy_btn_xpath).disabled = false;")
+>>>>>>> 4346100b5c7c891dcd38f08bd909138f3437d368
 
                 # ボタンをクリックする
                 deploy_btn.click()
