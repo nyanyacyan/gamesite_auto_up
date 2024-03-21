@@ -36,13 +36,18 @@ class OpGametrade(SiteOperations):
         self.config = {
             "site_name": "GAMETRADE",
             "lister_btn_xpath" : "//div[@class='exhibit-exhibit-button']/a",
-            "deploy_btn_xpath" : "//button[@type='submit' and contains(text(), '出品する')]",
             "photo_file_input_xpath" : "exhibit_exhibit_images[file][]",
             "title_input_xpath" : "game_title",
             "title_predict_xpath" : f"//ul[@id='ui-id-2']//div[contains(@class, 'ui-menu-item-wrapper') and contains(text(), '{self.gametitle}')]",
             "item_title_xpath" : "exhibit_title",
             "item_text_xpath" : "exhibit_description",
-            "level_btnPush_xpath" : "exhibit_exhibit_sub_form_values_attributes_0_value",
+            "level_input_xpath" : "exhibit_exhibit_sub_form_values_attributes_0_value",
+            "rank_input_xpath" : "exhibit_exhibit_sub_form_values_attributes_1_value",
+            "legend_input_xpath" : "exhibit_exhibit_sub_form_values_attributes_2_value",
+            "item_price_xpath" : "exhibit_price_input",
+            "check_box_xpath" : "agreement",
+            "deploy_btn_xpath" : "//button[@type='submit' and contains(text(), '出品する')]",
+
         }
 
         super().__init__(chrome, main_url, cookies_file_name, image, gametitle, self.config, sheet_url, account_id, debug_mode=debug_mode)

@@ -75,9 +75,6 @@ class GametradeProcess:
         self.logger.debug(f"URL: {current_url}")
         time.sleep(1)
 
-        self.logger.info(f"{__name__} Cookie作成を開始")
-        self.chrome.get(self.main_url)
-
         # 現在のURL
         self.logger.debug(f"{__name__} URL: {self.current_url}")
 
