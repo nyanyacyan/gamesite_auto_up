@@ -47,7 +47,7 @@ class GetCookie:
     def __init__(self,  loginurl, userid, password, cookies_file_name, config, debug_mode=False):
         self.logger = self.setup_logger(debug_mode=debug_mode)
         chrome_options = Options()
-        chrome_options.add_argument("--headless")  # ヘッドレスモードで実行
+        # chrome_options.add_argument("--headless")  # ヘッドレスモードで実行
         chrome_options.add_argument("--window-size=1000,800")  # ウィンドウサイズの指定
         # chrome_options.add_extension('data/uBlock-Origin.crx')  # iframe対策の広告ブロッカー
         service = Service(ChromeDriverManager().install())
@@ -67,7 +67,7 @@ class GetCookie:
         self.userid_xpath = config["userid_xpath"]
         self.password_xpath = config["password_xpath"]
         self.login_button_xpath = config["login_button_xpath"]
-        self.login_checkbox_xpath = config["login_checkbox_xpath"]
+        # self.login_checkbox_xpath = config["login_checkbox_xpath"]
         self.user_element_xpath = config["user_element_xpath"]
 
         # SolverRecaptchaクラスを初期化
@@ -326,7 +326,7 @@ class GetCookie:
 
         self.open_site()
         self.id_pass_input()
-        self.login_checkbox()
+        # self.login_checkbox()
         self.recaptcha_process()
         self.isChecked()
         self.save_cookies()

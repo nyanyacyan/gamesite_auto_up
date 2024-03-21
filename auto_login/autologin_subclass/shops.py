@@ -35,7 +35,7 @@ class Gametrade(GetCookie):
             "userid_xpath": "//input[@id='session_email']",
             "password_xpath": "//input[@id='session_password']",
             "login_button_xpath": "//button[@type='submit']",
-            "login_checkbox_xpath": "",
+            # "login_checkbox_xpath": "",
             "user_element_xpath": "//div[@class='user']",
         }
 
