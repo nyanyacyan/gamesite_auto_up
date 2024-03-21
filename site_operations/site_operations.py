@@ -11,6 +11,7 @@ import os
 import pickle
 import time
 import requests
+import pyperclip
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 
@@ -32,6 +33,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 # 自作モジュール
 from auto_login.solve_recaptcha import RecaptchaBreakthrough
 from logger.debug_logger import Logger
+from spreadsheet.read import Read
 
 
 load_dotenv()
@@ -46,13 +48,15 @@ timestamp = datetime.now().strftime("%m-%d_%H-%M")
 # Cookie利用してログインして処理を実行するクラス
 
 class SiteOperations:
-    def __init__(self, chrome, main_url, cookies_file_name, image, gametitle, config,  debug_mode=False):
+    def __init__(self, chrome, main_url, cookies_file_name, image, gametitle, config, sheet_url, account_id, debug_mode=False):
         self.logger = self.setup_logger(debug_mode=debug_mode)
         self.chrome = chrome
         self.main_url = main_url
         self.cookies_file_name = cookies_file_name
         self.image = image
         self.gametitle = gametitle
+        self.sheet_url = sheet_url
+        self.account_id = account_id
 
         #! 使ってないものは削除する
 
@@ -63,9 +67,14 @@ class SiteOperations:
         self.photo_file_input_xpath = config["photo_file_input_xpath"]
         self.title_input_xpath = config["title_input_xpath"]
         self.title_predict_xpath = config["title_predict_xpath"]
+        self.item_title_xpath = config["item_title_xpath"]
+        self.item_text_xpath = config["item_text_xpath"]
+        self.level_btnPush_xpath = config["level_btnPush_xpath"]
 
         # SolverRecaptchaクラスを初期化
         self.recaptcha_breakthrough = RecaptchaBreakthrough(self.chrome)
+
+        self.spreadsheet_data = Read(sheet_url, account_id)
 
 
 # ----------------------------------------------------------------------------------
@@ -365,6 +374,7 @@ class SiteOperations:
             title_predict.click()
             self.logger.debug(" 入力予測欄 をクリック終了")
 
+        # もし要素が見つからない場合にdisplay:noneを鑑みる
         except NoSuchElementException as e:
             self.logger.debug("指定した入力予測欄 が見つかりません")
 
@@ -384,6 +394,8 @@ class SiteOperations:
                 self.logger.debug(" 入力予測欄 をクリック開始")
                 title_predict.click()
                 self.logger.debug(" 入力予測欄 をクリック終了")
+
+            # もし見つからなかった場合にdisplay:noneが解除されてるのか確認
             except NoSuchElementException:
                 self.logger.debug("再度の検索でも入力予測欄が見つかりません")
 
@@ -413,6 +425,123 @@ class SiteOperations:
 
 
 # ----------------------------------------------------------------------------------
+# タイトルの入力
+
+    def item_title(self):
+        try:
+            # item_title を探して押す
+            self.logger.debug(" item_title の特定 開始")
+            title_input = self.chrome.find_element_by_id(self.config['item_title_xpath'])
+            self.logger.debug("item_title を発見")
+
+        except NoSuchElementException as e:
+            self.logger.error(f"item_title が見つかりません:{e}")
+
+        try:
+            self.logger.debug(f"スプシのタイトルに入力する文言 :{self.spreadsheet_data.get_item_title()}")
+            self.logger.debug(" item_title 入力開始")
+
+            # 絵文字があるため一度クリップボードに入れ込んでコピーする
+            pyperclip.copy(self.spreadsheet_data.get_item_title())
+
+            # コピペをSeleniumのKeysを使って行う
+            title_input.send_keys(Keys.CONTROL, 'v')    #! 本番ではこっちを使う
+            title_input.send_keys(Keys.COMMAND, 'v')
+
+            self.logger.debug(" item_title 入力完了")
+
+        # もし要素が見つからない場合
+        except NoSuchElementException as e:
+            self.logger.error(f"指定した入力予測欄 が見つかりません: {e}")
+
+        try:
+            # ボタンを押した後のページ読み込みの完了確認
+            WebDriverWait(self.chrome, 5).until(
+            lambda driver: driver.execute_script('return document.readyState') == 'complete'
+            )
+            self.logger.debug(f"{self.site_name} ページ読み込み完了")
+
+        except Exception as e:
+            self.logger.error(f"{self.site_name} 処理中にエラーが発生: {e}")
+
+        time.sleep(1)
+
+
+# ----------------------------------------------------------------------------------
+# 商品の説明文
+
+    def item_text(self):
+        try:
+            # item_text を探して押す
+            self.logger.debug(" item_text の特定 開始")
+            title_input = self.chrome.find_element_by_id(self.config['item_text_xpath'])
+            self.logger.debug("item_text を発見")
+
+        except NoSuchElementException as e:
+            self.logger.error(f"item_text が見つかりません:{e}")
+
+        try:
+            self.logger.debug(f"スプシのタイトルに入力する文言 :{self.spreadsheet_data.get_item_text()}")
+            self.logger.debug(" item_text 入力開始")
+
+            # 絵文字があるため一度クリップボードに入れ込んでコピーする
+            pyperclip.copy(self.spreadsheet_data.get_item_text())
+
+            # コピペをSeleniumのKeysを使って行う
+            title_input.send_keys(Keys.CONTROL, 'v')    #! 本番ではこっちを使う
+            title_input.send_keys(Keys.COMMAND, 'v')
+
+            self.logger.debug(" item_text 入力完了")
+
+        # もし要素が見つからない場合
+        except NoSuchElementException as e:
+            self.logger.error(f"指定した入力予測欄 が見つかりません: {e}")
+
+        try:
+            # ボタンを押した後のページ読み込みの完了確認
+            WebDriverWait(self.chrome, 5).until(
+            lambda driver: driver.execute_script('return document.readyState') == 'complete'
+            )
+            self.logger.debug(f"{self.site_name} ページ読み込み完了")
+
+        except Exception as e:
+            self.logger.error(f"{self.site_name} 処理中にエラーが発生: {e}")
+
+        time.sleep(1)
+
+
+
+# ----------------------------------------------------------------------------------
+# '''level_btnPush を見つけて押す'''
+
+    def level_btnPush(self):
+        try:
+            # 出品ボタンを探して押す
+            self.logger.debug(" プレイヤーレベルbtn を特定開始")
+            level_btnPush = self.chrome.find_element_by_id(self.level_btnPush_xpath)
+            self.logger.debug(" プレイヤーレベルbtn を発見")
+
+        except NoSuchElementException as e:
+            self.logger.error(f" プレイヤーレベルbtn が見つかりません:{e}")
+
+        level_btnPush.click()
+
+        try:
+            # ボタンを押した後のページ読み込みの完了確認
+            WebDriverWait(self.chrome, 5).until(
+            lambda driver: driver.execute_script('return document.readyState') == 'complete'
+            )
+            self.logger.debug(f"{self.site_name} ページ読み込み完了")
+
+        except Exception as e:
+            self.logger.error(f"{self.site_name} 処理中にエラーが発生: {e}")
+
+        time.sleep(1)
+
+
+# ----------------------------------------------------------------------------------
+
+
 
 
 
@@ -437,6 +566,11 @@ class SiteOperations:
         self.lister_btnPush()
         self.photo_upload()
         self.title_input()
+        self.item_title()
+        self.item_text()
+        self.level_btnPush()
+
+        time.sleep(30)
 
         self.logger.debug(f"{__name__}: 処理完了")
 
