@@ -66,7 +66,6 @@ class SiteOperations:
         #* 利用してるものconfig
         self.site_name = config["site_name"]
         self.lister_btn_xpath = config["lister_btn_xpath"]
-        self.deploy_btn_xpath = config["deploy_btn_xpath"]
         self.photo_file_input_xpath = config["photo_file_input_xpath"]
         self.title_input_xpath = config["title_input_xpath"]
         self.title_predict_xpath = config["title_predict_xpath"]
@@ -741,6 +740,16 @@ class SiteOperations:
 
 
         time.sleep(30)
+        
+        data = {"content": "出品が完了いたしました。"}
+        response = requests.post(self.discord_url, json=data)
+
+        if response.status_code == 204:
+            self.logger.debug("discordのメッセージ送信OK!!")
+        else:
+            self.logger.error("discordのメッセージ送信失敗。。")
+
+
 
         self.logger.debug(f"{__name__}: 処理完了")
 

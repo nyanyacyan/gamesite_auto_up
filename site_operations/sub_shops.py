@@ -23,10 +23,15 @@ load_dotenv()  # .env ファイルから環境変数を読み込む
 
 
 class OpGametrade(SiteOperations):
-    def __init__(self, chrome, main_url, cookies_file_name, image, debug_mode=False):
+    def __init__(self, chrome, main_url, cookies_file_name, image, gametitle, sheet_url, account_id, debug_mode=False):
         self.main_url = main_url
         self.cookies_file_name = cookies_file_name
         self.image = image
+        self.gametitle = gametitle
+        self.sheet_url = sheet_url
+        self.account_id = account_id
+
+
         # 親クラスにて定義した引数をここで引き渡す
         # configの内容をここで全て定義
         self.config = {
@@ -34,10 +39,19 @@ class OpGametrade(SiteOperations):
             "lister_btn_xpath" : "//div[@class='exhibit-exhibit-button']/a",
             "photo_file_input_xpath" : "exhibit_exhibit_images[file][]",
             "title_input_xpath" : "game_title",
-            "title_predict_xpath" : f"//ul[@id='ui-id-2']//div[contains(@class, 'ui-menu-item-wrapper') and contains(text(), '{self.gametitle}')]"
+            "title_predict_xpath" : f"//ul[@id='ui-id-2']//div[contains(@class, 'ui-menu-item-wrapper') and contains(text(), '{self.gametitle}')]",
+            "item_title_xpath" : "exhibit_title",
+            "item_text_xpath" : "exhibit_description",
+            "level_input_xpath" : "exhibit_exhibit_sub_form_values_attributes_0_value",
+            "rank_input_xpath" : "exhibit_exhibit_sub_form_values_attributes_1_value",
+            "legend_input_xpath" : "exhibit_exhibit_sub_form_values_attributes_2_value",
+            "item_price_xpath" : "exhibit_price_input",
+            "check_box_xpath" : "agreement",
+            "deploy_btn_xpath" : "//button[@type='submit' and contains(text(), '出品する')]",
+
         }
 
-        super().__init__(chrome, main_url, cookies_file_name, image, self.config, debug_mode=debug_mode)
+        super().__init__(chrome, main_url, cookies_file_name, image, gametitle, self.config, debug_mode=debug_mode)
 
     # getOrElseは実行を試み、失敗した場合は引数で指定した値を返す
     async def OpGetOrElse(self):
