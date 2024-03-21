@@ -23,11 +23,10 @@ from site_operations.sub_shops import OpGametrade
 # gui作成時にはinitにIDとPasswordを追加して渡せるようにする
 
 class GametradeProcess:
-    def __init__(self, main_url, cookies_file_name, image, gametitle, debug_mode=False):
+    def __init__(self, main_url, cookies_file_name, image, debug_mode=False):
         self.main_url = main_url
         self.cookies_file_name = cookies_file_name
         self.image = image
-        self.gametitle = gametitle
 
         chrome_options = Options()
         # chrome_options.add_argument("--headless")  # ヘッドレスモードで実行
@@ -49,7 +48,7 @@ class GametradeProcess:
 
 
         #! テストするインスタンス生成
-        self.site_operations = OpGametrade(self.chrome,main_url, cookies_file_name, image, gametitle)
+        self.site_operations = OpGametrade(self.chrome,main_url, cookies_file_name)
 
 
 # ----------------------------------------------------------------------------------
@@ -82,7 +81,7 @@ class GametradeProcess:
 
         self.logger.info(" 処理 完了")
 
-        # self.chrome.quit()
+        self.chrome.quit()
 
 
 # ----------------------------------------------------------------------------------
