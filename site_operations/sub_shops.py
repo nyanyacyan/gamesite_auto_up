@@ -51,7 +51,7 @@ class OpGametrade(SiteOperations):
 
         }
 
-        super().__init__(chrome, main_url, cookies_file_name, image, gametitle, self.config, debug_mode=debug_mode)
+        super().__init__(chrome, main_url, cookies_file_name, image, gametitle, self.config, sheet_url, account_id, debug_mode=debug_mode)
 
     # getOrElseは実行を試み、失敗した場合は引数で指定した値を返す
     async def OpGetOrElse(self):
