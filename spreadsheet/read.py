@@ -117,3 +117,27 @@ class Read:
         self.logger.debug(f"item_title: {item_text}")
 
         return item_text
+
+
+# ----------------------------------------------------------------------------------
+# 商品価格部分を取得
+
+    def get_item_price(self):
+        # スプシアクセス
+        spreadsheet = requests.get(self.sheet_url)
+
+        # スプシをCSVにてダウンロード
+        with open('data/spreadsheet.csv', 'w', encoding='utf-8') as f:
+            f.write(spreadsheet.content.decode('utf-8'))
+
+        # DataFrame作成
+        df = pd.read_csv("data/spreadsheet.csv", on_bad_lines='skip', index_col='account')
+
+        item_price = df.loc[self.account_id,'price']
+
+        self.logger.debug(f"item_title: {item_price}")
+
+        return item_price
+
+
+# ----------------------------------------------------------------------------------
