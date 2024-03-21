@@ -72,8 +72,11 @@ class SiteOperations:
         self.check_box_xpath = config["check_box_xpath"]
         self.deploy_btn_xpath = config["deploy_btn_xpath"]
 
+<<<<<<< HEAD
 =======
 >>>>>>> parent of a8ecfdd (スクレイピング最後まで完了)
+=======
+>>>>>>> 7cddafa4b48b547c09391ee3ca214746c9c984ae
 
         # SolverRecaptchaクラスを初期化
         self.recaptcha_breakthrough = RecaptchaBreakthrough(self.chrome)
@@ -451,6 +454,8 @@ class SiteOperations:
             self.logger.error(f"{self.site_name} 処理中にエラーが発生: {e}")
 
         time.sleep(1)
+<<<<<<< HEAD
+=======
 
 
 # ----------------------------------------------------------------------------------
@@ -639,6 +644,221 @@ class SiteOperations:
             self.logger.error(f"{self.site_name} 2CAPTCHAの処理を実行中にエラーが発生しました: {e}")
 
         time.sleep(3)
+>>>>>>> 7cddafa4b48b547c09391ee3ca214746c9c984ae
+
+
+# ----------------------------------------------------------------------------------
+# '''legend_input を見つけて押す'''
+
+    def legend_input(self):
+        try:
+            # 出品ボタンを探して押す
+            self.logger.debug(" legend_input を特定開始")
+            legend_input = self.chrome.find_element_by_id(self.legend_input_xpath)
+            self.logger.debug(" legend_input を発見")
+
+        except NoSuchElementException as e:
+            self.logger.error(f" legend_input が見つかりません:{e}")
+
+        self.logger.debug(" legend_input に数値入力 開始")
+        legend_input.send_keys('1')
+        self.logger.debug(" legend_input に数値入力 終了")
+
+        try:
+            # ボタンを押した後のページ読み込みの完了確認
+            WebDriverWait(self.chrome, 5).until(
+            lambda driver: driver.execute_script('return document.readyState') == 'complete'
+            )
+            self.logger.debug(f"{self.site_name} ページ読み込み完了")
+
+        except Exception as e:
+            self.logger.error(f"{self.site_name} 処理中にエラーが発生: {e}")
+
+        time.sleep(1)
+
+# ----------------------------------------------------------------------------------
+#! 「reCAPTCHAなし」でdeploy
+
+    def deploy_btnPush(self):
+        '''出品ページにあるすべての入力が完了したあとに押す「出品する」というボタン→ deploy_btn を見つけて押す'''
+        try:
+            # deploy_btnを探して押す
+            self.logger.debug(" deploy_btn を特定開始")
+            deploy_btn = self.chrome.find_element_by_xpath(self.deploy_btn_xpath)
+            self.logger.debug(" deploy_btn を発見")
+
+        except NoSuchElementException as e:
+            self.logger.error(f" deploy_btn が見つかりません:{e}")
+
+        deploy_btn.click()
+
+        try:
+            # 実行した後のページ読み込みの完了確認
+            WebDriverWait(self.chrome, 5).until(
+            lambda driver: driver.execute_script('return document.readyState') == 'complete'
+            )
+            self.logger.debug(f"{self.site_name} 次のページ読み込み完了")
+
+        except Exception as e:
+            self.logger.error(f"{self.site_name} 実行処理中にエラーが発生: {e}")
+
+# ----------------------------------------------------------------------------------
+# 商品の説明文
+
+<<<<<<< HEAD
+    def item_price(self):
+        try:
+            # item_price を探して押す
+            self.logger.debug(" item_price の特定 開始")
+            item_price_input = self.chrome.find_element_by_id(self.config['item_price_xpath'])
+            self.logger.debug("item_price を発見")
+
+        except NoSuchElementException as e:
+            self.logger.error(f"item_price が見つかりません:{e}")
+
+        try:
+            self.logger.debug(f"スプシのタイトルに入力する文言 :{self.spreadsheet_data.get_item_price()}")
+            self.logger.debug(" item_price 入力開始")
+
+            # 絵文字があるため一度クリップボードに入れ込んでコピーする
+            pyperclip.copy(self.spreadsheet_data.get_item_price())
+
+            # コピペをSeleniumのKeysを使って行う
+            item_price_input.send_keys(self.spreadsheet_data.get_item_price())
+
+            self.logger.debug(" item_price 入力完了")
+
+        # もし要素が見つからない場合
+        except NoSuchElementException as e:
+            self.logger.error(f"指定した入力予測欄 が見つかりません: {e}")
+
+        try:
+            # ボタンを押した後のページ読み込みの完了確認
+            WebDriverWait(self.chrome, 5).until(
+            lambda driver: driver.execute_script('return document.readyState') == 'complete'
+            )
+            self.logger.debug(f"{self.site_name} ページ読み込み完了")
+
+        except Exception as e:
+            self.logger.error(f"{self.site_name} 処理中にエラーが発生: {e}")
+
+        time.sleep(1)
+
+
+# ----------------------------------------------------------------------------------
+# チェックボックスクリック
+
+    def check_box_Push(self):
+        try:
+            # deploy_btnを探して押す
+            self.logger.debug(" check_box_Push 捜索 開始")
+            check_box = self.chrome.find_element_by_id(self.config['check_box_xpath'])
+            self.logger.debug(f"check_box :{check_box}")
+            self.logger.debug(" check_box_Push 発見")
+
+        except NoSuchElementException as e:
+            self.logger.error(f" check_box_Push が見つかりません:{e}")
+
+        check_box.click()
+
+        try:
+            # 実行した後のページ読み込みの完了確認
+            WebDriverWait(self.chrome, 5).until(
+            lambda driver: driver.execute_script('return document.readyState') == 'complete'
+            )
+            self.logger.debug(f"{self.site_name} 次のページ読み込み完了")
+
+        except Exception as e:
+            self.logger.error(f"{self.site_name} 実行処理中にエラーが発生: {e}")
+
+        time.sleep(1)
+
+
+# ----------------------------------------------------------------------------------
+
+#! deployする際に「reCAPTCHAあり」の場合に利用
+#TODO 手直し必要
+
+    def recap_deploy(self):
+        '''reCAPTCHA検知してある場合は2CAPTCHAメソッドを実行'''
+        try:
+            # 現在のURL
+            current_url = self.chrome.current_url
+            self.logger.debug(current_url)
+            # sitekeyを検索
+            elements = self.chrome.find_elements_by_css_selector('[data-sitekey]')
+            if len(elements) > 0:
+                self.logger.info(f"{self.site_name} reCAPTCHA処理実施中")
+
+
+                # solveRecaptchaファイルを実行
+                try:
+                    self.recaptcha_breakthrough.recaptchaIfNeeded(current_url)
+                    self.logger.info(f"{self.site_name} reCAPTCHA処理、完了")
+
+                except Exception as e:
+                    self.logger.error(f"{self.site_name} reCAPTCHA処理に失敗しました: {e}")
+                    # ログイン失敗をライン通知
+
+
+                self.logger.debug(f"{self.site_name} クリック開始")
+
+                # deploy_btn 要素を見つける
+                deploy_btn = self.chrome.find_element_by_xpath(self.deploy_btn_xpath)
+
+                # ボタンが無効化されているか確認し、無効化されていれば有効にする
+<<<<<<< HEAD
+<<<<<<< HEAD
+                self.chrome.execute_script("document.getElementByXPATH(self.deploy_btn_xpath).disabled = false;")
+=======
+                # self.chrome.execute_script("document.getElementByXPATH(self.deploy_btn_xpath).disabled = false;")
+>>>>>>> 4346100b5c7c891dcd38f08bd909138f3437d368
+=======
+                # self.chrome.execute_script("document.getElementByXPATH(self.deploy_btn_xpath).disabled = false;")
+>>>>>>> 4346100b5c7c891dcd38f08bd909138f3437d368
+
+                # ボタンをクリックする
+                deploy_btn.click()
+
+            else:
+                self.logger.info(f"{self.site_name} reCAPTCHAなし")
+
+                login_button = self.chrome.find_element_by_xpath(self.login_button_xpath)
+                self.logger.debug(f"{self.site_name} ボタン捜索完了")
+
+                deploy_btn.click()
+                self.logger.debug(f"{self.site_name} クリック完了")
+
+        # recaptchaなし
+        except NoSuchElementException:
+            self.logger.info(f"{self.site_name} reCAPTCHAなし")
+
+            login_button = self.chrome.find_element_by_xpath(self.login_button_xpath)
+            self.logger.debug(f"{self.site_name} ボタン捜索完了")
+
+
+            # ログインボタンクリック
+            try:
+                deploy_btn.click()
+                self.logger.debug(f"{self.site_name} クリック完了")
+
+            except ElementNotInteractableException:
+                self.chrome.execute_script("arguments[0].click();", login_button)
+                self.logger.debug(f"{self.site_name} JavaScriptを使用してクリック実行")
+
+        # ページ読み込み待機
+        try:
+            # ログインした後のページ読み込みの完了確認
+            WebDriverWait(self.chrome, 5).until(
+            lambda driver: driver.execute_script('return document.readyState') == 'complete'
+            )
+            self.logger.debug(f"{self.site_name} ログインページ読み込み完了")
+
+
+        except Exception as e:
+            self.logger.error(f"{self.site_name} 2CAPTCHAの処理を実行中にエラーが発生しました: {e}")
+
+        time.sleep(3)
 
 
 =======
@@ -671,6 +891,8 @@ class SiteOperations:
             self.logger.error(f"{self.site_name} 実行処理中にエラーが発生: {e}")
 
 
+=======
+>>>>>>> 7cddafa4b48b547c09391ee3ca214746c9c984ae
 # ----------------------------------------------------------------------------------
 
 

@@ -46,9 +46,12 @@ class OpGametrade(SiteOperations):
             "check_box_xpath" : "agreement",
             "deploy_btn_xpath" : "//button[@type='submit' and contains(text(), '出品する')]",
 
+<<<<<<< HEAD
 =======
             "title_predict_xpath" : f"//ul[@id='ui-id-2']//div[contains(@class, 'ui-menu-item-wrapper') and contains(text(), '{self.gametitle}')]"
 >>>>>>> parent of a8ecfdd (スクレイピング最後まで完了)
+=======
+>>>>>>> 7cddafa4b48b547c09391ee3ca214746c9c984ae
         }
 
         super().__init__(chrome, main_url, cookies_file_name, image, gametitle, self.config, debug_mode=debug_mode)
