@@ -22,6 +22,8 @@ from selenium import webdriver
 from selenium.common.exceptions import (ElementNotInteractableException,
                                         InvalidSelectorException,
                                         NoSuchElementException,
+                                        UnexpectedAlertPresentException,
+                                        NoAlertPresentException,
                                         TimeoutException)
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -77,6 +79,11 @@ class SiteOperations:
         self.item_price_xpath = config["item_price_xpath"]
         self.check_box_xpath = config["check_box_xpath"]
         self.deploy_btn_xpath = config["deploy_btn_xpath"]
+        self.last_check_xpath = config["last_check_xpath"]
+        self.close_btn_xpath = config["close_btn_xpath"]
+        self.comment_btn_xpath = config["comment_btn_xpath"]
+        self.item_comment_xpath = config["item_comment_xpath"]
+        self.item_comment_btn_xpath = config['item_comment_btn_xpath']
 
 
         # SolverRecaptchaクラスを初期化
@@ -224,7 +231,7 @@ class SiteOperations:
 
 
 # ----------------------------------------------------------------------------------
-# タイトル部分を入力して予測編から指定タイトルを選択
+# タイトル部分を入力して予測変換から指定タイトルを選択
 
     def title_input(self):
         try:
@@ -289,6 +296,38 @@ class SiteOperations:
                 self.logger.debug(" 入力予測欄 をクリック開始")
                 title_predict.click()
                 self.logger.debug(" 入力予測欄 をクリック終了")
+
+                time.sleep(3) 
+
+            except UnexpectedAlertPresentException:
+                try:
+                    alert = self.chrome.switch_to_alert
+                    alert_text = alert.text
+                    if "同一ゲームタイトルでの連続出品はできません。5分以上経過してから再度お試しください。" in alert_text:
+
+                        self.logger.info("【エラー】5分以内に同じものを出品")
+                        alert.accept()
+
+                        # スクショ撮影して送付
+                        filename = f"DebugScreenshot/lister_page_{timestamp}.png"
+                        screenshot_saved = self.chrome.save_screenshot(filename)
+                        self.logger.debug(f"エラーのスクショ撮影")
+                        if screenshot_saved:
+
+                        #! ログイン失敗を通知 クライアントに合った連絡方法
+                            content="【WARNING】5分以内投稿のため出品失敗。。"
+
+                            with open(filename, 'rb') as f:
+                                files = {"file": (filename, f, "image/png")}
+                                requests.post(self.discord_url, data={"content": content}, files=files)
+
+                        self.logger.error(f"【WARNING】5分以内投稿のため出品失敗: {e}")
+                        raise Exception("【WARNING】5分以内投稿のため出品失敗")
+
+                    else:
+                        alert.accept()
+                except NoAlertPresentException:
+                    alert.accept()
 
             # もし見つからなかった場合にdisplay:noneが解除されてるのか確認
             except NoSuchElementException:
@@ -410,7 +449,22 @@ class SiteOperations:
             self.logger.debug(" level_input を発見")
 
         except NoSuchElementException as e:
+            # スクリーンショット
+            filename = f"DebugScreenshot/lister_page_{timestamp}.png"
+            screenshot_saved = self.chrome.save_screenshot(filename)
+            self.logger.debug(f"エラーのスクショ撮影")
+            if screenshot_saved:
+
+            #! ログイン失敗を通知 クライアントに合った連絡方法
+                content="【WARNING】reCAPTCHAの処理に失敗しております。\n手動での操作が必要な可能性があります。"
+
+                with open(filename, 'rb') as f:
+                    files = {"file": (filename, f, "image/png")}
+                    requests.post(self.discord_url, data={"content": content}, files=files)
+
             self.logger.error(f" level_input が見つかりません:{e}")
+            raise
+
 
         self.logger.debug(" level_input に数値入力 開始")
         level_input.send_keys('1')
@@ -566,97 +620,30 @@ class SiteOperations:
 #! deployする際に「reCAPTCHAあり」の場合に利用
 
     def recap_deploy(self):
+        # try:
+        # 現在のURL
+        current_url = self.chrome.current_url
+        self.logger.debug(current_url)
+
+        self.recaptcha_breakthrough.process(current_url)
+
         try:
-            # 現在のURL
-            current_url = self.chrome.current_url
-            self.logger.debug(current_url)
-            # sitekeyを検索
-            self.logger.info("【1回目】reCAPTCHAチェック")
-            elements = self.chrome.find_elements_by_css_selector('[data-sitekey]')
-            if len(elements) > 0:
-                self.logger.info(f"{self.site_name} 【1回目】reCAPTCHA 発見")
+            # deploy_btn 要素を見つける
+            self.logger.debug(f"{self.site_name} 出品ボタン 捜索 開始")
+            deploy_btn = self.chrome.find_element_by_xpath(self.deploy_btn_xpath)
+            self.logger.debug(f"{self.site_name} 出品ボタン 捜索 終了")
 
-                # solveRecaptchaファイルを実行
-                try:
-                    self.recaptcha_breakthrough.recaptchaIfNeeded(current_url)
-                    self.logger.info(f"{self.site_name} reCAPTCHA 突破!!")
+            # ボタンをクリックする
+            deploy_btn.click()
+            self.logger.debug(f"{self.site_name} クリック 完了")
 
-                    self.logger.info("【２回目】reCAPTCHAチェック")
-                    elements = self.chrome.find_elements_by_css_selector('[data-sitekey]')
-                    if len(elements) > 0:
-                        self.logger.warning("【２回目】reCAPTCHA 発見")
+        except NoSuchElementException as e:
+            self.logger.error(f"{self.site_name} 出品ボタン 見つからない {e}")
 
-                        try:
-                            self.recaptcha_breakthrough.recaptchaIfNeeded(current_url)
-                            self.logger.info(f"{self.site_name} 【２回目】reCAPTCHA 突破!!")
-
-                        except Exception as e:
-                            self.logger.error(f"{self.site_name} 【２回目】reCAPTCHA処理に失敗しました: {e}")
-                            # ログイン失敗をライン通知
-
-                    else:
-                        self.logger.info("【２回目】reCAPTCHAなし")
-
-                except Exception as e:
-                    # スクリーンショット
-                    filename = f"DebugScreenshot/lister_page_{timestamp}.png"
-                    screenshot_saved = self.chrome.save_screenshot(filename)
-                    self.logger.debug(f"{self.site_name} エラーのスクショ撮影")
-                    if screenshot_saved:
-                    # ログイン失敗を通知
-                        content="【WARNING】reCAPTCHAの処理に失敗しております。\n手動での操作が必要な可能性があります。"
-
-                        with open(filename, 'rb') as f:
-                            files = {"file": (filename, f, "image/png")}
-                            requests.post(self.discord_url, data={"content": content}, files=files)
-
-                    self.logger.error(f"{self.site_name} reCAPTCHA処理に失敗しました: {e}")
-                    raise Exception("【WARNING】reCAPTCHAの処理に失敗しております。")
-
-
-                self.logger.info(f"{self.site_name} reCAPTCHA処理 終了")
-
-
-                try:
-                    # deploy_btn 要素を見つける
-                    self.logger.debug(f"{self.site_name} 出品ボタン 捜索 開始")
-                    deploy_btn = self.chrome.find_element_by_xpath(self.deploy_btn_xpath)
-                    self.logger.debug(f"{self.site_name} 出品ボタン 捜索 終了")
-
-
-                except NoSuchElementException:
-                    self.logger.info(f"{self.site_name} reCAPTCHAなし")
-
-                    # ボタンをクリックする
-                    deploy_btn.click()
-                    self.logger.debug(f"{self.site_name} クリック 完了")
-
-
-            else:
-                self.logger.info(f"{self.site_name} reCAPTCHAなし")
-
-                login_button = self.chrome.find_element_by_xpath(self.login_button_xpath)
-                self.logger.debug(f"{self.site_name} ボタン捜索完了")
-
-                deploy_btn.click()
-                self.logger.debug(f"{self.site_name} クリック完了")
-
-        # recaptchaなし
-        except NoSuchElementException:
-            self.logger.debug(f"{self.site_name} reCAPTCHAなし")
-
-            login_button = self.chrome.find_element_by_xpath(self.login_button_xpath)
-            self.logger.debug(f"{self.site_name} ボタン捜索完了")
-
-
-            # ログインボタンクリック
-            try:
-                deploy_btn.click()
-                self.logger.debug(f"{self.site_name} クリック完了")
-
-            except ElementNotInteractableException:
-                self.chrome.execute_script("arguments[0].click();", login_button)
-                self.logger.debug(f"{self.site_name} JavaScriptを使用してクリック実行")
+        # 通常のクリックができなかった時にJavaScriptにてクリック
+        except ElementNotInteractableException:
+            self.chrome.execute_script("arguments[0].click();", deploy_btn)
+            self.logger.debug(f"{self.site_name} JavaScriptを使用してクリック実行")
 
         # ページ読み込み待機
         try:
@@ -670,7 +657,7 @@ class SiteOperations:
         except Exception as e:
             self.logger.error(f"{self.site_name} 2CAPTCHAの処理を実行中にエラーが発生しました: {e}")
 
-        time.sleep(1)
+        time.sleep(3)
 
 
 
@@ -704,15 +691,143 @@ class SiteOperations:
 # ----------------------------------------------------------------------------------
 
 
+    def last_check(self):
+        try:
+            # last_check 要素を見つける
+            self.logger.debug(f"{self.site_name} 出品完了Message 捜索 開始")
+            self.chrome.find_element_by_xpath(self.config['last_check_xpath'])
+            self.logger.debug(f"{self.site_name} 出品完了Message 捜索 終了")
+
+            self.logger.debug(f"{self.site_name} 出品完了モーダル 捜索 開始")
+            close_btn = self.chrome.find_element_by_xpath(self.config['close_btn_xpath'])
+            self.logger.debug(f"{self.site_name} 出品完了モーダル 捜索 終了")
+
+            # ボタンをクリックする
+            close_btn.click()
+            self.logger.debug(f"{self.site_name} クリック 完了")
+
+        except NoSuchElementException as e:
+            filename = f"DebugScreenshot/lister_page_{timestamp}.png"
+            screenshot_saved = self.chrome.save_screenshot(filename)
+            self.logger.debug(f"エラーのスクショ撮影")
+            if screenshot_saved:
+
+            #! ログイン失敗を通知 クライアントに合った連絡方法
+                content="【WARNING】出品に失敗してる可能性あり。。"
+
+                with open(filename, 'rb') as f:
+                    files = {"file": (filename, f, "image/png")}
+                    requests.post(self.discord_url, data={"content": content}, files=files)
+
+            self.logger.error(f"【WARNING】出品処理に失敗: {e}")
+            raise Exception("【WARNING】出品処理に失敗。")
+
+        time.sleep(2)
 
 
+# ----------------------------------------------------------------------------------
+
+    def comment_btn(self):
+        try:
+            self.logger.debug(f"{self.site_name} comment_btn 捜索 開始")
+            comment_btn = self.chrome.find_element_by_xpath(self.config['comment_btn_xpath'])
+            self.logger.debug(f"{self.site_name} comment_btn 捜索 終了")
+
+            # ボタンをクリックする
+            comment_btn.click()
+            self.logger.debug(f"{self.site_name} クリック 完了")
+
+        except NoSuchElementException as e:
+            filename = f"DebugScreenshot/lister_page_{timestamp}.png"
+            screenshot_saved = self.chrome.save_screenshot(filename)
+            self.logger.debug(f"エラーのスクショ撮影")
+            if screenshot_saved:
+
+            #! ログイン失敗を通知 クライアントに合った連絡方法
+                content="【WARNING】出品に失敗してる可能性あり。。"
+
+                with open(filename, 'rb') as f:
+                    files = {"file": (filename, f, "image/png")}
+                    requests.post(self.discord_url, data={"content": content}, files=files)
+
+            self.logger.error(f"【WARNING】comment_btn が見つからない: {e}")
+            raise Exception("【WARNING】comment_btn が見つからない")
+
+        time.sleep(2)
+
+# ----------------------------------------------------------------------------------
+# 商品に追加コメント
+
+    def item_comment(self):
+        try:
+            # item_comment を探して押す
+            self.logger.debug(" item_comment の特定 開始")
+            item_comment_input = self.chrome.find_element_by_id(self.config['item_comment_xpath'])
+            self.logger.debug("item_comment を発見")
+
+        except NoSuchElementException as e:
+            self.logger.error(f"item_comment が見つかりません:{e}")
+
+        try:
+            self.logger.debug(f"スプシのタイトルに入力する文言 :{self.spreadsheet_data.get_item_comment()}")
+            self.logger.debug(" item_comment 入力開始")
+
+            # 絵文字があるため一度クリップボードに入れ込んでコピーする
+            pyperclip.copy(self.spreadsheet_data.get_item_comment())
+
+            # コピペをSeleniumのKeysを使って行う
+            item_comment_input.send_keys(self.spreadsheet_data.get_item_comment())
+
+            self.logger.debug(" item_comment 入力完了")
+
+        # もし要素が見つからない場合
+        except NoSuchElementException as e:
+            self.logger.error(f"指定した入力予測欄 が見つかりません: {e}")
+
+        try:
+            # ボタンを押した後のページ読み込みの完了確認
+            WebDriverWait(self.chrome, 5).until(
+            lambda driver: driver.execute_script('return document.readyState') == 'complete'
+            )
+            self.logger.debug(f"{self.site_name} ページ読み込み完了")
+
+        except Exception as e:
+            self.logger.error(f"{self.site_name} 処理中にエラーが発生: {e}")
+
+        time.sleep(1)
 
 
+# ----------------------------------------------------------------------------------
 
+    def item_comment_btn(self):
+        try:
+            self.logger.debug(f"{self.site_name} item_comment_btn 捜索 開始")
+            item_comment_btn = self.chrome.find_element_by_xpath(self.config['item_comment_btn_xpath'])
+            self.logger.debug(f"{self.site_name} item_comment_btn 捜索 終了")
 
+            # ボタンをクリックする
+            item_comment_btn.click()
+            self.logger.debug(f"{self.site_name} クリック 完了")
 
+        except NoSuchElementException as e:
+            filename = f"DebugScreenshot/lister_page_{timestamp}.png"
+            screenshot_saved = self.chrome.save_screenshot(filename)
+            self.logger.debug(f"エラーのスクショ撮影")
+            if screenshot_saved:
 
+            #! ログイン失敗を通知 クライアントに合った連絡方法
+                content="【WARNING】出品に失敗してる可能性あり。。"
 
+                with open(filename, 'rb') as f:
+                    files = {"file": (filename, f, "image/png")}
+                    requests.post(self.discord_url, data={"content": content}, files=files)
+
+            self.logger.error(f"【WARNING】item_comment_btn が見つからない: {e}")
+            raise Exception("【WARNING】item_comment_btn が見つからない")
+
+        time.sleep(2)
+
+# ----------------------------------------------------------------------------------
 
 
 
@@ -737,10 +852,13 @@ class SiteOperations:
         self.item_price()
         self.check_box_Push()
         self.recap_deploy()
-
+        self.last_check()
+        self.comment_btn()
+        self.item_comment()
+        self.item_comment_btn()
 
         time.sleep(30)
-        
+
         data = {"content": "出品が完了いたしました。"}
         response = requests.post(self.discord_url, json=data)
 

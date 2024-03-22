@@ -174,62 +174,35 @@ class GetCookie:
 
     def recaptcha_process(self):
         '''reCAPTCHA検知してある場合は2CAPTCHAメソッドを実行'''
+        # 現在のURL
+        current_url = self.chrome.current_url
+        self.logger.debug(current_url)
+
+        self.recaptcha_breakthrough.process(current_url)
+
         try:
-            # 現在のURL
-            current_url = self.chrome.current_url
-            self.logger.debug(current_url)
-            # sitekeyを検索
-            elements = self.chrome.find_elements_by_css_selector('[data-sitekey]')
-            if len(elements) > 0:
-                self.logger.info(f"{self.site_name} reCAPTCHA処理実施中")
-
-
-                # solveRecaptchaファイルを実行
-                try:
-                    self.recaptcha_breakthrough.recaptchaIfNeeded(current_url)
-                    self.logger.info(f"{self.site_name} reCAPTCHA処理、完了")
-
-                except Exception as e:
-                    self.logger.error(f"{self.site_name} reCAPTCHA処理に失敗しました: {e}")
-                    # ログイン失敗をライン通知
-
-
-                self.logger.debug(f"{self.site_name} クリック開始")
-
+            # deploy_btn 要素を見つける
+            self.logger.debug(f"{self.site_name} 出品ボタン 捜索 開始")
                 # ログインボタン要素を見つける
-                login_button = self.chrome.find_element_by_id(f"{self.site_name} recaptcha-submit")
-
-                # ボタンが無効化されているか確認し、無効化されていれば有効にする
-                self.chrome.execute_script("document.getElementById('recaptcha-submit').disabled = false;")
-
-                # ボタンをクリックする
-                login_button.click()
-
-            else:
-                self.logger.info(f"{self.site_name} reCAPTCHAなし")
-
-                login_button = self.chrome.find_element_by_xpath(self.login_button_xpath)
-                self.logger.debug(f"{self.site_name} ボタン捜索完了")
-
-                login_button.send_keys(Keys.ENTER)
-                self.logger.debug(f"{self.site_name} クリック完了")
-
-        # recaptchaなし
-        except NoSuchElementException:
-            self.logger.info(f"{self.site_name} reCAPTCHAなし")
-
             login_button = self.chrome.find_element_by_xpath(self.login_button_xpath)
+
             self.logger.debug(f"{self.site_name} ボタン捜索完了")
 
+            self.logger.debug(f"{self.site_name} クリック完了")
+            # ボタンをクリックする
+            login_button.click()
 
-            # ログインボタンクリック
-            try:
-                login_button.send_keys(Keys.ENTER)
-                self.logger.debug(f"{self.site_name} クリック完了")
+            self.logger.debug(f"{self.site_name} クリック 完了")
 
-            except ElementNotInteractableException:
-                self.chrome.execute_script("arguments[0].click();", login_button)
-                self.logger.debug(f"{self.site_name} JavaScriptを使用してクリック実行")
+        except NoSuchElementException as e:
+            self.logger.error(f"{self.site_name} 出品ボタン 見つからない {e}")
+            login_button.send_keys(Keys.ENTER)
+
+        # 通常のクリックができなかった時にJavaScriptにてクリック
+        except ElementNotInteractableException:
+            self.chrome.execute_script("arguments[0].click();", login_button)
+            self.logger.debug(f"{self.site_name} JavaScriptを使用してクリック実行")
+
 
         # ページ読み込み待機
         try:

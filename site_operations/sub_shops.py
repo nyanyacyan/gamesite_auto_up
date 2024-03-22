@@ -48,6 +48,11 @@ class OpGametrade(SiteOperations):
             "item_price_xpath" : "exhibit_price_input",
             "check_box_xpath" : "agreement",
             "deploy_btn_xpath" : "//button[@type='submit' and contains(text(), '出品する')]",
+            "last_check_xpath" : "//div[@id='continue-exhibit-modal']/p[@class='title' and text()='出品が完了しました。']",
+            "close_btn_xpath" : "//div[@id='modal-close']",
+            "comment_btn_xpath" : "//div[@class='comment-link']/a",
+            "item_comment_xpath" : "comment_context",
+            "item_comment_btn_xpath" : "//input[@type='submit' and @name='commit' and @value='コメントを送る']"
 
         }
 

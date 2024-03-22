@@ -7,8 +7,10 @@
 
 # ----------------------------------------------------------------------------------
 import sys
-import os
-from selenium.common.exceptions import NoSuchElementException
+import os, time
+import requests
+from datetime import datetime
+from selenium.common.exceptions import NoSuchElementException, ElementNotInteractableException
 
 from twocaptcha import TwoCaptcha
 from dotenv import load_dotenv
@@ -18,24 +20,35 @@ from logger.debug_logger import Logger
 
 load_dotenv()
 
-class RecaptchaBreakthrough:
-    def __init__(self, chrome_driver, debug_mode=False):
-        # Loggerクラスを初期化
-        debug_mode = os.getenv('DEBUG_MODE', 'False') == 'True'
-        self.logger_instance = Logger(__name__, debug_mode=debug_mode)
-        self.logger = self.logger_instance.get_logger()
-        self.debug_mode = debug_mode
-
-
-        load_dotenv()
-        self.chrome = chrome_driver
-
-        # 2captcha APIkeyを.envから取得
-        self.api_key = os.getenv('TWOCAPTCHA_KEY')
+timestamp = datetime.now().strftime("%m-%d_%H-%M")
 
 
 # ----------------------------------------------------------------------------------
 
+
+class RecaptchaBreakthrough:
+    def __init__(self, chrome, debug_mode=False):
+        self.logger = self.setup_logger(debug_mode=debug_mode)
+        self.chrome = chrome
+
+        # 2captcha APIkeyを.envから取得
+        self.api_key = os.getenv('TWOCAPTCHA_KEY')
+
+        #* 通知関係
+        self.discord_url = os.getenv('DISCORD_BOT_URL')
+
+
+# ----------------------------------------------------------------------------------
+# Loggerセットアップ
+
+    def setup_logger(self, debug_mode=False):
+        debug_mode = os.getenv('DEBUG_MODE', 'False') == 'True'
+        logger_instance = Logger(__name__, debug_mode=debug_mode)
+        return logger_instance.get_logger()
+
+
+# ----------------------------------------------------------------------------------
+# 2CAPTCHAへのリクエスト
 
     def checkKey(self, sitekey, url):
         solver = TwoCaptcha(self.api_key)
@@ -43,7 +56,8 @@ class RecaptchaBreakthrough:
         try:
             result = solver.recaptcha(
                 sitekey=sitekey,
-                url=url)
+                url=url
+                )
 
         except Exception as e:
             sys.exit(e)
@@ -53,7 +67,7 @@ class RecaptchaBreakthrough:
 
 
 # ----------------------------------------------------------------------------------
-
+# reCAPTCHA処理
 
     def recaptchaIfNeeded(self, current_url):
         try:
@@ -90,6 +104,7 @@ class RecaptchaBreakthrough:
         self.logger.debug(f"current_url: {current_url}")
 
         self.logger.info("2captcha開始")
+        time.sleep(1)
 
         result = self.checkKey(
             data_sitekey_value,
@@ -114,6 +129,53 @@ class RecaptchaBreakthrough:
 
             if code == textarea_value:
                 self.logger.debug("textareaにトークン入力完了")
+                time.sleep(2)
 
         except Exception as e:
             self.logger.error(f"トークンの入力に失敗: {e}")
+
+
+# ----------------------------------------------------------------------------------
+# 実行Process
+
+    def process(self, current_url):
+        try_count = 0
+
+        while try_count < 15:
+            try_count += 1
+
+            # sitekeyを検索
+            self.logger.info(f"【{try_count}回目】reCAPTCHAチェック")
+            elements = self.chrome.find_elements_by_css_selector('[data-sitekey]')
+            if len(elements) > 0:
+                self.logger.info(f"【{try_count}回目】reCAPTCHA 発見")
+
+                # solveRecaptchaファイルを実行
+                try:
+                    self.recaptchaIfNeeded(current_url)
+                    self.logger.info(f"【{try_count}回目】reCAPTCHA 突破!!")
+
+                    time.sleep(3)
+
+                except Exception as e:
+                    filename = f"DebugScreenshot/lister_page_{timestamp}.png"
+                    screenshot_saved = self.chrome.save_screenshot(filename)
+                    self.logger.debug(f"エラーのスクショ撮影")
+                    if screenshot_saved:
+
+                    #! ログイン失敗を通知 クライアントに合った連絡方法
+                        content="【WARNING】reCAPTCHAの処理に失敗しております。\n手動での操作が必要な可能性があります。"
+
+                        with open(filename, 'rb') as f:
+                            files = {"file": (filename, f, "image/png")}
+                            requests.post(self.discord_url, data={"content": content}, files=files)
+
+                    self.logger.error(f"reCAPTCHA処理に失敗しました: {e}")
+                    raise Exception("【WARNING】reCAPTCHAの処理に失敗。")
+
+            else:
+                self.logger.info(f"【{try_count}回目】reCAPTCHAなし")
+                break
+
+
+# ----------------------------------------------------------------------------------
