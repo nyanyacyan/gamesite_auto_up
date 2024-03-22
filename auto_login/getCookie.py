@@ -50,6 +50,7 @@ class GetCookie:
         # chrome_options.add_argument("--headless")  # ヘッドレスモードで実行
         chrome_options.add_argument("--window-size=1000,800")  # ウィンドウサイズの指定
         # chrome_options.add_extension('data/uBlock-Origin.crx')  # iframe対策の広告ブロッカー
+        chrome_options.add_extension('data/hlifkpholllijblknnmbfagnkjneagid.crx')
         service = Service(ChromeDriverManager().install())
         self.chrome = webdriver.Chrome(service=service, options=chrome_options)
 
@@ -178,7 +179,7 @@ class GetCookie:
         current_url = self.chrome.current_url
         self.logger.debug(current_url)
 
-        self.recaptcha_breakthrough.process(current_url)
+        # self.recaptcha_breakthrough.process(current_url)
 
         try:
             # deploy_btn 要素を見つける
@@ -216,7 +217,7 @@ class GetCookie:
         except Exception as e:
             self.logger.error(f"{self.site_name} 2CAPTCHAの処理を実行中にエラーが発生しました: {e}")
 
-        time.sleep(10)
+        time.sleep(30)
 
 
 # ----------------------------------------------------------------------------------

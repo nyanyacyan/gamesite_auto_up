@@ -34,6 +34,7 @@ class GametradeProcess:
         # chrome_options.add_argument("--headless")  # ヘッドレスモードで実行
         chrome_options.add_argument("--window-size=1000,800")  # ウィンドウサイズの指定
         chrome_options.add_extension('data/uBlock-Origin.crx')  # iframe対策の広告ブロッカー
+        chrome_options.add_extension('data/hlifkpholllijblknnmbfagnkjneagid.crx')
         service = Service(ChromeDriverManager().install())
         self.chrome = webdriver.Chrome(service=service, options=chrome_options)
 
@@ -81,6 +82,30 @@ class GametradeProcess:
 
         #! ここからインスタンスを入れていく
         await self.site_operations.OpGetOrElse()
+
+        self.logger.info(" 処理 完了")
+
+        self.chrome.quit()
+
+
+# ----------------------------------------------------------------------------------
+#? ここにカプセル化した内容をいれる
+
+    async def agency_process(self):
+        self.logger.info(" スクレイピング 開始")
+        self.logger.debug("サイトを開いてます。")
+        self.chrome.get(self.main_url)
+
+        current_url = self.chrome.current_url
+        self.logger.debug(f"URL: {current_url}")
+        time.sleep(1)
+
+        # 現在のURL
+        self.logger.debug(f"{__name__} URL: {self.current_url}")
+
+
+        #! ここからインスタンスを入れていく
+        await self.site_operations.AgencyOpGetOrElse()
 
         self.logger.info(" 処理 完了")
 

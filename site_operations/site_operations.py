@@ -84,6 +84,7 @@ class SiteOperations:
         self.comment_btn_xpath = config["comment_btn_xpath"]
         self.item_comment_xpath = config["item_comment_xpath"]
         self.item_comment_btn_xpath = config['item_comment_btn_xpath']
+        self.agency_input_xpath = config['agency_input_xpath']
 
 
         # SolverRecaptchaクラスを初期化
@@ -155,14 +156,14 @@ class SiteOperations:
             WebDriverWait(self.chrome, 5).until(
             lambda driver: driver.execute_script('return document.readyState') == 'complete'
             )
-            self.logger.debug(f"{self.site_name} ログインページ読み込み完了")
+            self.logger.debug(f"{self.account_id} ログインページ読み込み完了")
 
         except Exception as e:
-            self.logger.error(f"{self.site_name} ログイン処理中にエラーが発生: {e}")
+            self.logger.error(f"{self.account_id} ログイン処理中にエラーが発生: {e}")
 
         # #TODO スクリーンショット
         # self.chrome.save_screenshot('cookie_login_after.png')
-        # self.logger.debug(f"{self.site_name} ログイン状態のスクショ撮影")
+        # self.logger.debug(f"{self.account_id} ログイン状態のスクショ撮影")
 
 # ----------------------------------------------------------------------------------
 
@@ -185,10 +186,10 @@ class SiteOperations:
             WebDriverWait(self.chrome, 5).until(
             lambda driver: driver.execute_script('return document.readyState') == 'complete'
             )
-            self.logger.debug(f"{self.site_name} ページ読み込み完了")
+            self.logger.debug(f"{self.account_id} ページ読み込み完了")
 
         except Exception as e:
-            self.logger.error(f"{self.site_name} 処理中にエラーが発生: {e}")
+            self.logger.error(f"{self.account_id} 処理中にエラーが発生: {e}")
 
         time.sleep(1)
 
@@ -386,10 +387,10 @@ class SiteOperations:
             WebDriverWait(self.chrome, 5).until(
             lambda driver: driver.execute_script('return document.readyState') == 'complete'
             )
-            self.logger.debug(f"{self.site_name} ページ読み込み完了")
+            self.logger.debug(f"{self.account_id} ページ読み込み完了")
 
         except Exception as e:
-            self.logger.error(f"{self.site_name} 処理中にエラーが発生: {e}")
+            self.logger.error(f"{self.account_id} 処理中にエラーが発生: {e}")
 
         time.sleep(1)
 
@@ -429,10 +430,10 @@ class SiteOperations:
             WebDriverWait(self.chrome, 5).until(
             lambda driver: driver.execute_script('return document.readyState') == 'complete'
             )
-            self.logger.debug(f"{self.site_name} ページ読み込み完了")
+            self.logger.debug(f"{self.account_id} ページ読み込み完了")
 
         except Exception as e:
-            self.logger.error(f"{self.site_name} 処理中にエラーが発生: {e}")
+            self.logger.error(f"{self.account_id} 処理中にエラーが発生: {e}")
 
         time.sleep(1)
 
@@ -462,9 +463,7 @@ class SiteOperations:
                     files = {"file": (filename, f, "image/png")}
                     requests.post(self.discord_url, data={"content": content}, files=files)
 
-            self.logger.error(f" level_input が見つかりません:{e}")
-            raise
-
+            raise(f"{self.account_id}: level_input が見つかりません:{e}")
 
         self.logger.debug(" level_input に数値入力 開始")
         level_input.send_keys('1')
@@ -475,10 +474,10 @@ class SiteOperations:
             WebDriverWait(self.chrome, 5).until(
             lambda driver: driver.execute_script('return document.readyState') == 'complete'
             )
-            self.logger.debug(f"{self.site_name} ページ読み込み完了")
+            self.logger.debug(f"{self.account_id} ページ読み込み完了")
 
         except Exception as e:
-            self.logger.error(f"{self.site_name} 処理中にエラーが発生: {e}")
+            raise(f"{self.account_id} 処理中にエラーが発生: {e}")
 
         time.sleep(1)
 
@@ -503,17 +502,17 @@ class SiteOperations:
             self.logger.debug(" rank_input 選択 終了")
 
         except NoSuchElementException as e:
-            self.logger.error(f" rank_input が見つかりません:{e}")
+            raise(f"{self.account_id}: rank_input が見つかりません:{e}")
 
         try:
             # ボタンを押した後のページ読み込みの完了確認
             WebDriverWait(self.chrome, 5).until(
             lambda driver: driver.execute_script('return document.readyState') == 'complete'
             )
-            self.logger.debug(f"{self.site_name} ページ読み込み完了")
+            self.logger.debug(f"{self.account_id} ページ読み込み完了")
 
         except Exception as e:
-            self.logger.error(f"{self.site_name} 処理中にエラーが発生: {e}")
+            raise(f"{self.account_id} rank_input 処理中にエラーが発生: {e}")
 
         time.sleep(1)
 
@@ -529,7 +528,7 @@ class SiteOperations:
             self.logger.debug(" legend_input を発見")
 
         except NoSuchElementException as e:
-            self.logger.error(f" legend_input が見つかりません:{e}")
+            raise(f"{self.account_id}: legend_input が見つかりません:{e}")
 
         self.logger.debug(" legend_input に数値入力 開始")
         legend_input.send_keys('1')
@@ -540,10 +539,10 @@ class SiteOperations:
             WebDriverWait(self.chrome, 5).until(
             lambda driver: driver.execute_script('return document.readyState') == 'complete'
             )
-            self.logger.debug(f"{self.site_name} ページ読み込み完了")
+            self.logger.debug(f"{self.account_id} ページ読み込み完了")
 
         except Exception as e:
-            self.logger.error(f"{self.site_name} 処理中にエラーが発生: {e}")
+            raise(f"{self.account_id} legend_input 処理中にエラーが発生: {e}")
 
         time.sleep(1)
 
@@ -553,14 +552,10 @@ class SiteOperations:
     def item_price(self):
         try:
             # item_price を探して押す
-            self.logger.debug(" item_price の特定 開始")
+            self.logger.debug(" item_price_input の特定 開始")
             item_price_input = self.chrome.find_element_by_id(self.config['item_price_xpath'])
-            self.logger.debug("item_price を発見")
+            self.logger.debug("item_price_input を発見")
 
-        except NoSuchElementException as e:
-            self.logger.error(f"item_price が見つかりません:{e}")
-
-        try:
             self.logger.debug(f"スプシのタイトルに入力する文言 :{self.spreadsheet_data.get_item_price()}")
             self.logger.debug(" item_price 入力開始")
 
@@ -572,19 +567,20 @@ class SiteOperations:
 
             self.logger.debug(" item_price 入力完了")
 
-        # もし要素が見つからない場合
         except NoSuchElementException as e:
-            self.logger.error(f"指定した入力予測欄 が見つかりません: {e}")
+            raise(f"{self.account_id}: item_price_input が見つかりません:{e}")
 
         try:
             # ボタンを押した後のページ読み込みの完了確認
             WebDriverWait(self.chrome, 5).until(
             lambda driver: driver.execute_script('return document.readyState') == 'complete'
             )
-            self.logger.debug(f"{self.site_name} ページ読み込み完了")
+            self.logger.debug(f"{self.account_id} ページ読み込み完了")
 
         except Exception as e:
-            self.logger.error(f"{self.site_name} 処理中にエラーが発生: {e}")
+            raise(f"{self.account_id} item_price 処理中にエラーが発生: {e}")
+
+
 
         time.sleep(1)
 
@@ -601,7 +597,8 @@ class SiteOperations:
             self.logger.debug(" check_box_Push 発見")
 
         except NoSuchElementException as e:
-            self.logger.error(f" check_box_Push が見つかりません:{e}")
+            raise(f"{self.account_id}: check_box_Push が見つかりません:{e}")
+
 
         check_box.click()
 
@@ -610,40 +607,33 @@ class SiteOperations:
             WebDriverWait(self.chrome, 5).until(
             lambda driver: driver.execute_script('return document.readyState') == 'complete'
             )
-            self.logger.debug(f"{self.site_name} 次のページ読み込み完了")
+            self.logger.debug(f"{self.account_id} 次のページ読み込み完了")
 
         except Exception as e:
-            self.logger.error(f"{self.site_name} 実行処理中にエラーが発生: {e}")
+            raise(f"{self.account_id} check_box_Push 処理中にエラーが発生: {e}")
 
         time.sleep(1)
 # ----------------------------------------------------------------------------------
-#! deployする際に「reCAPTCHAあり」の場合に利用
+
 
     def recap_deploy(self):
-        # try:
-        # 現在のURL
-        current_url = self.chrome.current_url
-        self.logger.debug(current_url)
-
-        self.recaptcha_breakthrough.process(current_url)
-
         try:
             # deploy_btn 要素を見つける
-            self.logger.debug(f"{self.site_name} 出品ボタン 捜索 開始")
+            self.logger.debug(f"{self.account_id} 出品ボタン 捜索 開始")
             deploy_btn = self.chrome.find_element_by_xpath(self.deploy_btn_xpath)
-            self.logger.debug(f"{self.site_name} 出品ボタン 捜索 終了")
+            self.logger.debug(f"{self.account_id} 出品ボタン 捜索 終了")
 
             # ボタンをクリックする
             deploy_btn.click()
-            self.logger.debug(f"{self.site_name} クリック 完了")
+            self.logger.debug(f"{self.account_id} クリック 完了")
 
         except NoSuchElementException as e:
-            self.logger.error(f"{self.site_name} 出品ボタン 見つからない {e}")
+            raise(f"{self.account_id}: rank_input が見つかりません:{e}")
 
         # 通常のクリックができなかった時にJavaScriptにてクリック
         except ElementNotInteractableException:
             self.chrome.execute_script("arguments[0].click();", deploy_btn)
-            self.logger.debug(f"{self.site_name} JavaScriptを使用してクリック実行")
+            self.logger.debug(f"{self.account_id} JavaScriptを使用してクリック実行")
 
         # ページ読み込み待機
         try:
@@ -651,14 +641,13 @@ class SiteOperations:
             WebDriverWait(self.chrome, 5).until(
             lambda driver: driver.execute_script('return document.readyState') == 'complete'
             )
-            self.logger.debug(f"{self.site_name} ログインページ読み込み完了")
+            self.logger.debug(f"{self.account_id} ログインページ読み込み完了")
 
 
         except Exception as e:
-            self.logger.error(f"{self.site_name} 2CAPTCHAの処理を実行中にエラーが発生しました: {e}")
+            self.logger.error(f"{self.account_id} 2CAPTCHAの処理を実行中にエラーが発生しました: {e}")
 
-        time.sleep(3)
-
+        time.sleep(30)  # reCAPTCHA処理の待機時間
 
 
 # ----------------------------------------------------------------------------------
@@ -673,7 +662,7 @@ class SiteOperations:
             self.logger.debug(" deploy_btn を発見")
 
         except NoSuchElementException as e:
-            self.logger.error(f" deploy_btn が見つかりません:{e}")
+            raise(f"{self.account_id}: deploy_btnPush が見つかりません:{e}")
 
         deploy_btn.click()
 
@@ -682,10 +671,12 @@ class SiteOperations:
             WebDriverWait(self.chrome, 5).until(
             lambda driver: driver.execute_script('return document.readyState') == 'complete'
             )
-            self.logger.debug(f"{self.site_name} 次のページ読み込み完了")
+            self.logger.debug(f"{self.account_id} 次のページ読み込み完了")
 
         except Exception as e:
-            self.logger.error(f"{self.site_name} 実行処理中にエラーが発生: {e}")
+            raise(f"{self.account_id} deploy_btnPush 処理中にエラーが発生: {e}")
+
+        time.sleep(30)  # reCAPTCHA処理の待機時間
 
 
 # ----------------------------------------------------------------------------------
@@ -694,17 +685,17 @@ class SiteOperations:
     def last_check(self):
         try:
             # last_check 要素を見つける
-            self.logger.debug(f"{self.site_name} 出品完了Message 捜索 開始")
+            self.logger.debug(f"{self.account_id} 出品完了Message 捜索 開始")
             self.chrome.find_element_by_xpath(self.config['last_check_xpath'])
-            self.logger.debug(f"{self.site_name} 出品完了Message 捜索 終了")
+            self.logger.debug(f"{self.account_id} 出品完了Message 捜索 終了")
 
-            self.logger.debug(f"{self.site_name} 出品完了モーダル 捜索 開始")
+            self.logger.debug(f"{self.account_id} 出品完了モーダル 捜索 開始")
             close_btn = self.chrome.find_element_by_xpath(self.config['close_btn_xpath'])
-            self.logger.debug(f"{self.site_name} 出品完了モーダル 捜索 終了")
+            self.logger.debug(f"{self.account_id} 出品完了モーダル 捜索 終了")
 
             # ボタンをクリックする
             close_btn.click()
-            self.logger.debug(f"{self.site_name} クリック 完了")
+            self.logger.debug(f"{self.account_id} クリック 完了")
 
         except NoSuchElementException as e:
             filename = f"DebugScreenshot/lister_page_{timestamp}.png"
@@ -719,23 +710,23 @@ class SiteOperations:
                     files = {"file": (filename, f, "image/png")}
                     requests.post(self.discord_url, data={"content": content}, files=files)
 
-            self.logger.error(f"【WARNING】出品処理に失敗: {e}")
-            raise Exception("【WARNING】出品処理に失敗。")
+            raise Exception(f"{self.account_id}: 【WARNING】 出品処理に失敗: {e}")
 
         time.sleep(2)
 
 
 # ----------------------------------------------------------------------------------
 
+
     def comment_btn(self):
         try:
-            self.logger.debug(f"{self.site_name} comment_btn 捜索 開始")
+            self.logger.debug(f"{self.account_id} comment_btn 捜索 開始")
             comment_btn = self.chrome.find_element_by_xpath(self.config['comment_btn_xpath'])
-            self.logger.debug(f"{self.site_name} comment_btn 捜索 終了")
+            self.logger.debug(f"{self.account_id} comment_btn 捜索 終了")
 
             # ボタンをクリックする
             comment_btn.click()
-            self.logger.debug(f"{self.site_name} クリック 完了")
+            self.logger.debug(f"{self.account_id} クリック 完了")
 
         except NoSuchElementException as e:
             filename = f"DebugScreenshot/lister_page_{timestamp}.png"
@@ -750,10 +741,10 @@ class SiteOperations:
                     files = {"file": (filename, f, "image/png")}
                     requests.post(self.discord_url, data={"content": content}, files=files)
 
-            self.logger.error(f"【WARNING】comment_btn が見つからない: {e}")
-            raise Exception("【WARNING】comment_btn が見つからない")
+            raise Exception(f"{self.account_id}: comment_btn が見つかりません:{e}")
 
         time.sleep(2)
+
 
 # ----------------------------------------------------------------------------------
 # 商品に追加コメント
@@ -766,7 +757,7 @@ class SiteOperations:
             self.logger.debug("item_comment を発見")
 
         except NoSuchElementException as e:
-            self.logger.error(f"item_comment が見つかりません:{e}")
+            raise(f"{self.account_id}: item_comment が見つかりません:{e}")
 
         try:
             self.logger.debug(f"スプシのタイトルに入力する文言 :{self.spreadsheet_data.get_item_comment()}")
@@ -782,17 +773,17 @@ class SiteOperations:
 
         # もし要素が見つからない場合
         except NoSuchElementException as e:
-            self.logger.error(f"指定した入力予測欄 が見つかりません: {e}")
+            raise(f"{self.account_id}: 指定した入力予測欄 が見つかりません: {e}")
 
         try:
             # ボタンを押した後のページ読み込みの完了確認
             WebDriverWait(self.chrome, 5).until(
             lambda driver: driver.execute_script('return document.readyState') == 'complete'
             )
-            self.logger.debug(f"{self.site_name} ページ読み込み完了")
+            self.logger.debug(f"{self.account_id} ページ読み込み完了")
 
         except Exception as e:
-            self.logger.error(f"{self.site_name} 処理中にエラーが発生: {e}")
+            raise(f"{self.account_id} item_comment 処理中にエラーが発生: {e}")
 
         time.sleep(1)
 
@@ -801,13 +792,13 @@ class SiteOperations:
 
     def item_comment_btn(self):
         try:
-            self.logger.debug(f"{self.site_name} item_comment_btn 捜索 開始")
+            self.logger.debug(f"{self.account_id} item_comment_btn 捜索 開始")
             item_comment_btn = self.chrome.find_element_by_xpath(self.config['item_comment_btn_xpath'])
-            self.logger.debug(f"{self.site_name} item_comment_btn 捜索 終了")
+            self.logger.debug(f"{self.account_id} item_comment_btn 捜索 終了")
 
             # ボタンをクリックする
             item_comment_btn.click()
-            self.logger.debug(f"{self.site_name} クリック 完了")
+            self.logger.debug(f"{self.account_id} クリック 完了")
 
         except NoSuchElementException as e:
             filename = f"DebugScreenshot/lister_page_{timestamp}.png"
@@ -823,18 +814,80 @@ class SiteOperations:
                     requests.post(self.discord_url, data={"content": content}, files=files)
 
             self.logger.error(f"【WARNING】item_comment_btn が見つからない: {e}")
-            raise Exception("【WARNING】item_comment_btn が見つからない")
+            raise Exception(f"{self.account_id}: item_comment_btn が見つかりません:{e}")
 
         time.sleep(2)
 
 # ----------------------------------------------------------------------------------
+# '''agency_input を見つけて押す'''
+# display:noneを解除したあとの操作はJavaScriptにて行う必要がある
+
+    def agency_input(self):
+        try:
+            # 出品ボタンを探して押す
+            self.logger.debug(" agency_input 捜索 開始")
+            select_element = self.chrome.find_element_by_id(self.agency_input_xpath)
+            self.logger.debug(" agency_input 発見")
 
 
+            try:
+                self.logger.debug("display:noneを削除開始")
+
+                # display:noneを[""](空欄)に書き換え
+                self.chrome.execute_script('var element=document.getElementById("g-recaptcha-response"); element.style.display="";')
+
+                # 現在のdisplayプロパティ内の値を抽出
+                style = self.chrome.execute_script('return document.getElementById("g-recaptcha-response").style.display')
+
+                self.logger.debug(style)
+
+                if style == "":
+                    self.logger.debug("display:noneの削除に成功しました")
+                else:
+                    raise Exception("display:noneの削除に失敗しました")
+
+            except NoSuchElementException as e:
+                print(f"display:noneが見つからない: {e}")
+                raise
+
+            except Exception as e:
+                self.logger.error(f"display:noneの削除に失敗しましたので確認が必要です:{e}")
+                raise
+
+            time.sleep(2)
+
+            self.logger.debug(" agency_input 選択 開始")
+
+            # ドロップダウンメニューを選択できるように指定
+            self.chrome.execute_script("""var element = document.getElementById('exhibit_exhibit_category_id');
+                                    element.value = '48'; // 代行を選択
+                                    // change イベントをトリガー
+                                    var event = new Event('change', { bubbles: true });
+                                    element.dispatchEvent(event);""")
+
+            self.logger.debug(" agency_input 選択 終了")
+
+            time.sleep(1)
+            select_element.send_keys(Keys.ENTER)
+
+        except NoSuchElementException as e:
+            raise Exception(f"{self.account_id}: comment_btn が見つかりません:{e}")
+
+        try:
+            # ボタンを押した後のページ読み込みの完了確認
+            WebDriverWait(self.chrome, 5).until(
+            lambda driver: driver.execute_script('return document.readyState') == 'complete'
+            )
+            self.logger.debug(f"{self.account_id} ページ読み込み完了")
+
+        except Exception as e:
+            raise Exception(f"{self.account_id}: comment_btn が見つかりません:{e}")
+
+        time.sleep(3)
 
 
-
-#TODO メインメソッド
-#TODO ここにすべてを集約させる
+# ----------------------------------------------------------------------------------
+# メインメソッド(アカウント)
 
     def site_operation(self):
         '''メインメソッド'''
@@ -851,13 +904,13 @@ class SiteOperations:
         self.legend_input()
         self.item_price()
         self.check_box_Push()
-        self.recap_deploy()
+        self.deploy_btnPush()
         self.last_check()
         self.comment_btn()
         self.item_comment()
         self.item_comment_btn()
 
-        time.sleep(30)
+        time.sleep(3)
 
         data = {"content": "出品が完了いたしました。"}
         response = requests.post(self.discord_url, json=data)
@@ -868,10 +921,7 @@ class SiteOperations:
             self.logger.error("discordのメッセージ送信失敗。。")
 
 
-
         self.logger.debug(f"{__name__}: 処理完了")
-
-
 
 
 # ----------------------------------------------------------------------------------
@@ -884,3 +934,56 @@ class SiteOperations:
 
         # ブロッキング、実行タイミング、並列処理などを適切に行えるように「functools」にてワンクッション置いて実行
         await loop.run_in_executor(None, functools.partial(self.site_operation))
+
+
+# ----------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------
+# メインメソッド(代行)
+
+    def agency_site_operation(self):
+        '''メインメソッド'''
+        self.logger.debug(f"{__name__}: 処理開始")
+
+        self.cookie_login()
+        self.lister_btnPush()
+        self.photo_upload()
+        self.title_input()
+        self.agency_input()
+        self.item_title()
+        self.item_text()
+        # self.level_input()
+        # self.rank_input()
+        # self.legend_input()
+        self.item_price()
+        self.check_box_Push()
+        self.deploy_btnPush()
+        self.last_check()
+        self.comment_btn()
+        self.item_comment()
+        self.item_comment_btn()
+
+        time.sleep(3)
+
+        data = {"content": "出品が完了いたしました。"}
+        response = requests.post(self.discord_url, json=data)
+
+        if response.status_code == 204:
+            self.logger.debug("discordのメッセージ送信OK!!")
+        else:
+            self.logger.error("discordのメッセージ送信失敗。。")
+
+
+        self.logger.debug(f"{__name__}: 処理完了")
+
+
+# ----------------------------------------------------------------------------------
+# メインメソッドを非同期処理に変換
+
+    async def agency_site_operation_async(self):
+        loop = asyncio.get_running_loop()
+
+        # ブロッキング、実行タイミング、並列処理などを適切に行えるように「functools」にてワンクッション置いて実行
+        await loop.run_in_executor(None, functools.partial(self.agency_site_operation))
+
+
+# ----------------------------------------------------------------------------------

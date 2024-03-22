@@ -141,7 +141,7 @@ class RecaptchaBreakthrough:
     def process(self, current_url):
         try_count = 0
 
-        while try_count < 15:
+        while try_count < 1:
             try_count += 1
 
             # sitekeyを検索

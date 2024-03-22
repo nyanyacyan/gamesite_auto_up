@@ -52,7 +52,8 @@ class OpGametrade(SiteOperations):
             "close_btn_xpath" : "//div[@id='modal-close']",
             "comment_btn_xpath" : "//div[@class='comment-link']/a",
             "item_comment_xpath" : "comment_context",
-            "item_comment_btn_xpath" : "//input[@type='submit' and @name='commit' and @value='コメントを送る']"
+            "item_comment_btn_xpath" : "//input[@type='submit' and @name='commit' and @value='コメントを送る']",
+            "agency_input_xpath" : "exhibit_exhibit_category_id"
 
         }
 
@@ -64,5 +65,10 @@ class OpGametrade(SiteOperations):
         # initにて初期化済みのためconfigを渡すだけでOK
         await self.site_operation_async()
 
+
+    async def AgencyOpGetOrElse(self):
+        # 継承してるクラスのメソッドを非同期処理して実行
+        # initにて初期化済みのためconfigを渡すだけでOK
+        await self.agency_site_operation_async()
 
 # ２----------------------------------------------------------------------------------
