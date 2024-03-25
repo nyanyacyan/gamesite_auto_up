@@ -234,20 +234,26 @@ class SiteOperations:
 # ----------------------------------------------------------------------------------
 # タイトル部分を入力して予測変換から指定タイトルを選択
 
-    def title_input(self):
+    def game_title_input(self):
         try:
             # title入力欄を探す
             self.logger.debug(" title入力欄 を捜索開始")
-            file_input = self.chrome.find_element_by_id(self.title_input_xpath)
+            game_title_input = self.chrome.find_element_by_id(self.title_input_xpath)
             self.logger.debug(" title入力欄 を発見")
 
         except NoSuchElementException as e:
             self.logger.error(f" fileのアップロードの<input>要素 が見つかりません:{e}")
 
         try:
-            self.logger.debug(" self.photo_file_xpath を特定開始")
-            file_input.send_keys(self.gametitle)
-            self.logger.debug(" self.photo_file_xpath を特定開始")
+            self.logger.debug(" title_input に入力 開始")
+            pyperclip.copy(self.spreadsheet_data.get_game_title())
+
+            # コピペをSeleniumのKeysを使って行う
+            game_title_input.send_keys(Keys.CONTROL, 'v')
+            game_title_input.send_keys(Keys.COMMAND, 'v')
+
+            # game_title_input.send_keys(self.gametitle)
+            self.logger.debug(" title_input に入力 完了")
 
         except FileNotFoundError as e:
             self.logger.error(f" photo_file_xpath が見つかりません:{e}")
@@ -546,6 +552,7 @@ class SiteOperations:
 
         time.sleep(1)
 
+
 # ----------------------------------------------------------------------------------
 # 商品の説明文
 
@@ -613,6 +620,8 @@ class SiteOperations:
             raise(f"{self.account_id} check_box_Push 処理中にエラーが発生: {e}")
 
         time.sleep(1)
+
+
 # ----------------------------------------------------------------------------------
 
 
@@ -676,7 +685,7 @@ class SiteOperations:
         except Exception as e:
             raise(f"{self.account_id} deploy_btnPush 処理中にエラーが発生: {e}")
 
-        time.sleep(30)  # reCAPTCHA処理の待機時間
+        time.sleep(60)  # reCAPTCHA処理の待機時間
 
 
 # ----------------------------------------------------------------------------------
@@ -896,7 +905,7 @@ class SiteOperations:
         self.cookie_login()
         self.lister_btnPush()
         self.photo_upload()
-        self.title_input()
+        self.game_title_input()
         self.item_title()
         self.item_text()
         self.level_input()
@@ -925,7 +934,8 @@ class SiteOperations:
 
 
 # ----------------------------------------------------------------------------------
-
+# もしタイトルが追加になった場合には(self.site_operation)部分を変数にする
+# それぞれのタイトルをメソッド化してスプシの内容が反映するように変更
 
 #TODO メインメソッドを非同期処理に変換
     # 同期メソッドを非同期処理に変換
@@ -937,6 +947,36 @@ class SiteOperations:
 
 
 # ----------------------------------------------------------------------------------
+# スプシからのデータ内容を確認して実行するメインメソッドを切り替えて実行する
+
+
+# def method_11():
+#     print("実行中: メソッド11")
+
+# def method_22():
+#     print("実行中: メソッド22")
+
+# def method_33():
+#     print("実行中: メソッド33")
+
+# # 関数をキーにマッピング
+# methods = {
+#     "A": method_11,
+#     "B": method_22,
+#     "C": method_33,
+# }
+
+# # スプレッドシートから取得した値
+# value_from_spreadsheet = "B"  # 例えば、"B"が選択されたとします
+
+# # 辞書を使用して関数を呼び出す
+# method_to_call = methods.get(value_from_spreadsheet)
+
+# if method_to_call:
+#     method_to_call()
+# else:
+#     print("該当するメソッドがありません。")
+
 # ----------------------------------------------------------------------------------
 # メインメソッド(代行)
 
