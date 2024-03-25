@@ -42,6 +42,15 @@ executor = ThreadPoolExecutor(max_workers=5)
 # スクショ用のタイムスタンプ
 timestamp = datetime.now().strftime("%m-%d_%H-%M")
 
+# 絶対path
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# 現在のスクリプトの親ディレクトリのパス
+parent_dir = os.path.dirname(script_dir)
+
+# Cookieの絶対path
+cookie_dir = os.path.join(parent_dir, 'auto_login', 'cookies/')
+
 
 # ----------------------------------------------------------------------------------
 # Cookie利用してログインして処理を実行するクラス
@@ -103,10 +112,13 @@ class SiteOperations:
 
     def cookie_login(self):
         '''Cookieを使ってログイン'''
+        cookies_fullpath = os.path.join(cookie_dir, self.cookies_file_name)
+
+        cookies = []
 
         # Cookieファイルを展開
         try:
-            cookies = pickle.load(open('auto_login/cookies/' + self.cookies_file_name, 'rb'))
+            cookies = pickle.load(open(cookies_fullpath, 'rb'))
 
         except FileNotFoundError as e:
             self.logger.error(f"ファイルが見つかりません:{e}")
@@ -129,7 +141,7 @@ class SiteOperations:
             self.logger.info("Cookieでのログイン成功")
 
         else:
-            self.logger.info("Cookieでのログイン失敗")
+            self.logger.info("Cookieでのログイン失敗 sessionでのログインに変更")
             session = requests.Session()
 
             for cookie in cookies:
@@ -205,8 +217,9 @@ class SiteOperations:
 
         try:
             self.logger.debug(" self.photo_file_xpath を特定開始")
-            image_full_path = os.path.abspath(self.image)
-            file_input.send_keys(image_full_path)
+            self.logger.debug(f" self.image {self.image}")
+            # image_full_path = os.path.abspath(self.image)
+            file_input.send_keys(self.image)
             self.logger.debug(" self.photo_file_xpath を特定開始")
 
         except FileNotFoundError as e:
@@ -411,7 +424,7 @@ class SiteOperations:
             self.logger.error(f"item_text が見つかりません:{e}")
 
         try:
-            self.logger.debug(f"スプシのタイトルに入力する文言 :{self.spreadsheet_data.get_item_text()}")
+            self.logger.debug(f"スプシのタイトルに入力する文言 :{self.spreadsheet_data.get_item_text()}"[:30])
             self.logger.debug(" item_text 入力開始")
 
             # 絵文字があるため一度クリップボードに入れ込んでコピーする

@@ -104,7 +104,7 @@ class Read(SpreadsheetReader):
 
     def get_item_detail(self, detail_type):
         item_detail = self.df.loc[self.account_id, detail_type]
-        self.logger.debug(f"{detail_type}: {item_detail}")
+        # self.logger.debug(f"{detail_type}: {item_detail}"[:10])
         return item_detail
 
 

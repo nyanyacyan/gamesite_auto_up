@@ -136,7 +136,7 @@ class SiteOperations:
 
             # テキスト化
             res_text = response.text
-            self.logger.debug(f"res_text: {res_text}"[:30])
+            self.logger.debug(f"res_text: {res_text}")
 
             #! 後で修正 テキストが確認できたらログインのできたこと内容をピックアップして「ログインの成功の条件」に追加
             # if "ログイン成功の条件" in res_text:

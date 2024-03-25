@@ -203,7 +203,7 @@ class GetCookie:
         try:
             # 実行した後のページ読み込みの完了確認
             WebDriverWait(self.chrome, 120).until(
-                EC.visibility_of_element_located((By.XPATH, self.config['last_check_xpath']))
+                EC.visibility_of_element_located((By.XPATH, self.config['user_element_xpath']))
             )
 
         except Exception as e:
@@ -220,7 +220,7 @@ class GetCookie:
                     files = {"file": (filename, f, "image/png")}
                     requests.post(self.discord_url, data={"content": content}, files=files)
 
-            raise(f"{self.account_id} deploy_btnPush 処理中にエラーが発生: {e}")
+            raise(f"deploy_btnPush 処理中にエラーが発生: {e}")
 
         time.sleep(3)  # reCAPTCHA処理の待機時間
 

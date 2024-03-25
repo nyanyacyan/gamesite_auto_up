@@ -19,6 +19,11 @@ from webdriver_manager.chrome import ChromeDriverManager
 from logger.debug_logger import Logger
 from site_operations.sub_shops import OpGametrade
 
+# 拡張機能の絶対path
+script_dir = os.path.dirname(os.path.abspath(__file__))
+security_path = os.path.join(script_dir, 'data', 'uBlock-Origin.crx')
+cap_path = os.path.join(script_dir, 'data', 'hlifkpholllijblknnmbfagnkjneagid.crx')
+
 # ----------------------------------------------------------------------------------
 # gui作成時にはinitにIDとPasswordを追加して渡せるようにする
 
@@ -33,8 +38,8 @@ class GametradeProcess:
         chrome_options = Options()
         # chrome_options.add_argument("--headless")  # ヘッドレスモードで実行
         chrome_options.add_argument("--window-size=1200,1000")  # ウィンドウサイズの指定
-        chrome_options.add_extension('data/uBlock-Origin.crx')  # iframe対策の広告ブロッカー
-        chrome_options.add_extension('data/hlifkpholllijblknnmbfagnkjneagid.crx')
+        chrome_options.add_extension(security_path)  # iframe対策の広告ブロッカー
+        chrome_options.add_extension(cap_path)
         service = Service(ChromeDriverManager().install())
         self.chrome = webdriver.Chrome(service=service, options=chrome_options)
 
