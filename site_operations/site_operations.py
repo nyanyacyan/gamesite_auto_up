@@ -51,6 +51,9 @@ parent_dir = os.path.dirname(script_dir)
 # Cookieの絶対path
 cookie_dir = os.path.join(parent_dir, 'auto_login', 'cookies/')
 
+# スクショ保管場所の絶対path
+screenshot_dir = os.path.join(parent_dir, 'DebugScreenshot/')
+
 
 # ----------------------------------------------------------------------------------
 # Cookie利用してログインして処理を実行するクラス
@@ -108,8 +111,78 @@ class SiteOperations:
 
 
 # ----------------------------------------------------------------------------------
+# スクショセットアップ
+
+    def info_screenshot_discord(self, comment, info_message):
+        # スクショ用のタイムスタンプ
+        timestamp = datetime.now().strftime("%m-%d_%H-%M")
+
+        filename = f"lister_page_{timestamp}.png"
+
+        # 絶対path
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+
+        # 現在のスクリプトの親ディレクトリのパス
+        parent_dir = os.path.dirname(script_dir)
+
+        # スクショ保管場所の絶対path
+        screenshot_dir = os.path.join(parent_dir, 'DebugScreenshot/')
+
+        full_path = os.path.join(screenshot_dir, filename)
 
 
+        # スクリーンショットを保存
+        screenshot_saved = self.chrome.save_screenshot(full_path)
+        if screenshot_saved:
+            self.logger.debug(f"スクリーンショットを保存: {full_path}")
+
+        content = f"【INFO】{comment}"
+
+        with open(full_path, 'rb') as file:
+            files = {"file": (full_path, file, "image/png")}
+            response = requests.post(self.discord_url, data={"content": content}, files=files)
+            print(f"Discordへの通知結果: {response.status_code}")
+
+        print(info_message)
+
+
+# ----------------------------------------------------------------------------------
+# エラー時のスクショ セットアップ
+
+    def error_screenshot_discord(self, comment, error_message):
+        # スクショ用のタイムスタンプ
+        timestamp = datetime.now().strftime("%m-%d_%H-%M")
+
+        filename = f"lister_page_{timestamp}.png"
+
+        # 絶対path
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+
+        # 現在のスクリプトの親ディレクトリのパス
+        parent_dir = os.path.dirname(script_dir)
+
+        # スクショ保管場所の絶対path
+        screenshot_dir = os.path.join(parent_dir, 'DebugScreenshot/')
+
+        full_path = os.path.join(screenshot_dir, filename)
+
+
+        # スクリーンショットを保存
+        screenshot_saved = self.chrome.save_screenshot(full_path)
+        if screenshot_saved:
+            self.logger.debug(f"スクリーンショットを保存: {full_path}")
+
+        content = f"【WARNING】{comment}"
+
+        with open(full_path, 'rb') as file:
+            files = {"file": (full_path, file, "image/png")}
+            response = requests.post(self.discord_url, data={"content": content}, files=files)
+            print(f"Discordへの通知結果: {response.status_code}")
+
+        raise Exception(f"{self.account_id} {error_message}")
+
+
+# ----------------------------------------------------------------------------------
     def cookie_login(self):
         '''Cookieを使ってログイン'''
         cookies_fullpath = os.path.join(cookie_dir, self.cookies_file_name)
@@ -669,7 +742,7 @@ class SiteOperations:
 
 
 # ----------------------------------------------------------------------------------
-#! 「reCAPTCHAなし」でdeploy
+
 
     def deploy_btnPush(self):
         try:
@@ -690,20 +763,26 @@ class SiteOperations:
             )
 
         except Exception as e:
-            # エラーのスクショを送信
-            filename = f"DebugScreenshot/lister_page_{timestamp}.png"
-            screenshot_saved = self.chrome.save_screenshot(filename)
-            self.logger.debug(f"出品ボタン押下の際にエラーになった際 スクショ撮影")
-            if screenshot_saved:
+            # # エラーのスクショを送信
+            # filename = f"DebugScreenshot/lister_page_{timestamp}.png"
+            # screenshot_saved = self.chrome.save_screenshot(filename)
+            # self.logger.debug(f"出品ボタン押下の際にエラーになった際 スクショ撮影")
+            # if screenshot_saved:
 
-            #! ログイン失敗を通知 クライアントに合った連絡方法
-                content="【WARNING】出品ボタン押下の際にエラー"
+            # #! ログイン失敗を通知 クライアントに合った連絡方法
+            #     content="【WARNING】出品ボタン押下の際にエラー"
 
-                with open(filename, 'rb') as f:
-                    files = {"file": (filename, f, "image/png")}
-                    requests.post(self.discord_url, data={"content": content}, files=files)
+            #     with open(filename, 'rb') as f:
+            #         files = {"file": (filename, f, "image/png")}
+            #         requests.post(self.discord_url, data={"content": content}, files=files)
 
-            raise(f"{self.account_id} deploy_btnPush 処理中にエラーが発生: {e}")
+            # raise(f"{self.account_id} deploy_btnPush 処理中にエラーが発生: {e}")
+
+            self.error_screenshot_discord(
+                "reCAPTCHAのエラーの可能性大・・",  # discordへの出力
+                str(e),
+                "reCAPTCHAのエラーの可能性大・・"  # ログへの出力
+            )
 
         time.sleep(3)  # reCAPTCHA処理の待機時間
 
@@ -942,17 +1021,10 @@ class SiteOperations:
         time.sleep(3)
 
         # 成功のスクショを送信
-        filename = f"DebugScreenshot/lister_page_{timestamp}.png"
-        screenshot_saved = self.chrome.save_screenshot(filename)
-        self.logger.debug(f"出品完了時のスクショ撮影")
-        if screenshot_saved:
-
-        #! ログイン失敗を通知 クライアントに合った連絡方法
-            content="【success】出品に成功"
-
-            with open(filename, 'rb') as f:
-                files = {"file": (filename, f, "image/png")}
-                requests.post(self.discord_url, data={"content": content}, files=files)
+        self.info_screenshot_discord(
+            "reCAPTCHA回避 成功",  # discordへの通知
+            "reCAPTCHA回避 成功"  # ログへの通知
+        )
 
         time.sleep(2)
 

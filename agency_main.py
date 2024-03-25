@@ -8,6 +8,23 @@ import os, asyncio
 from gametrado_process import GametradeProcess
 
 
+# ----------------------------------------------------------------------------------
+
+
+def get_fullpath(relative_path):
+    # 絶対path
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # # item_photo の絶対path
+    # item_photo_dir = os.path.join(script_dir, 'item_photo')
+
+    # 繋げることを定義して返す
+    return os.path.join(script_dir, relative_path)
+
+
+# ----------------------------------------------------------------------------------
+
+
 async def main_define(main_url, cookies_file_name, image, gametitle, sheet_url, account_id):
     gametrade = GametradeProcess(main_url, cookies_file_name, image, gametitle, sheet_url, account_id)
 
@@ -15,12 +32,15 @@ async def main_define(main_url, cookies_file_name, image, gametitle, sheet_url, 
     await gametrade.agency_process()
 
 
+# ----------------------------------------------------------------------------------
+
+
 async def agency_main():
     accounts = [
         {
             "main_url" : os.getenv("GAME_TRADE_MAIN_URL"),
             "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_1"),
-            "image" : os.getenv("GAME_TRADE_IMAGE_1"),
+            "image" : get_fullpath(os.getenv("GAME_TRADE_IMAGE_1")),
             "gametitle" : os.getenv("GAME_TRADE_TITLE_1"),
             "sheet_url" : os.getenv("GAME_TRADE_SHEET_URL_1"),
             "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_1"),
@@ -62,5 +82,12 @@ async def agency_main():
     # すべてのタスクが完了するまで待機
     await asyncio.gather(*tasks)
 
+
+# ----------------------------------------------------------------------------------
+
+
 if __name__ == "__main__":
     asyncio.run(agency_main())
+
+
+# ----------------------------------------------------------------------------------
