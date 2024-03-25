@@ -9,11 +9,13 @@
 
 
 import asyncio
-import datetime
 import functools
 import os
 import pickle
+import requests
 import time
+import datetime
+from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 
 from dotenv import load_dotenv
@@ -39,6 +41,8 @@ load_dotenv()
 
 executor = ThreadPoolExecutor(max_workers=5)
 
+# スクショ用のタイムスタンプ
+timestamp = datetime.now().strftime("%m-%d_%H-%M")
 
 # ----------------------------------------------------------------------------------
 # '''新しいCookieを取得する or Cookieが使わないサイト'''
@@ -48,7 +52,7 @@ class GetCookie:
         self.logger = self.setup_logger(debug_mode=debug_mode)
         chrome_options = Options()
         # chrome_options.add_argument("--headless")  # ヘッドレスモードで実行
-        chrome_options.add_argument("--window-size=1000,800")  # ウィンドウサイズの指定
+        chrome_options.add_argument("--window-size=1200,1000")  # ウィンドウサイズの指定
         # chrome_options.add_extension('data/uBlock-Origin.crx')  # iframe対策の広告ブロッカー
         chrome_options.add_extension('data/hlifkpholllijblknnmbfagnkjneagid.crx')
         service = Service(ChromeDriverManager().install())
@@ -61,6 +65,7 @@ class GetCookie:
         self.userid = userid
         self.password = password
         self.cookies_file_name = cookies_file_name
+        self.discord_url = os.getenv('DISCORD_BOT_URL')
 
 
         # xpath全体で使えるように初期化
@@ -189,35 +194,35 @@ class GetCookie:
 
             self.logger.debug(f"{self.site_name} ボタン捜索完了")
 
-            self.logger.debug(f"{self.site_name} クリック完了")
-            # ボタンをクリックする
-            login_button.click()
-
-            self.logger.debug(f"{self.site_name} クリック 完了")
-
         except NoSuchElementException as e:
-            self.logger.error(f"{self.site_name} 出品ボタン 見つからない {e}")
-            login_button.send_keys(Keys.ENTER)
+            raise(f"{self.account_id}: deploy_btnPush が見つかりません:{e}")
 
-        # 通常のクリックができなかった時にJavaScriptにてクリック
-        except ElementNotInteractableException:
-            self.chrome.execute_script("arguments[0].click();", login_button)
-            self.logger.debug(f"{self.site_name} JavaScriptを使用してクリック実行")
+        # ボタンをクリックする
+        login_button.click()
 
-
-        # ページ読み込み待機
         try:
-            # ログインした後のページ読み込みの完了確認
-            WebDriverWait(self.chrome, 5).until(
-            lambda driver: driver.execute_script('return document.readyState') == 'complete'
+            # 実行した後のページ読み込みの完了確認
+            WebDriverWait(self.chrome, 120).until(
+                EC.visibility_of_element_located((By.XPATH, self.config['last_check_xpath']))
             )
-            self.logger.debug(f"{self.site_name} ログインページ読み込み完了")
-
 
         except Exception as e:
-            self.logger.error(f"{self.site_name} 2CAPTCHAの処理を実行中にエラーが発生しました: {e}")
+            # エラーのスクショを送信
+            filename = f"DebugScreenshot/lister_page_{timestamp}.png"
+            screenshot_saved = self.chrome.save_screenshot(filename)
+            self.logger.debug(f"出品ボタン押下の際にエラーになった際 スクショ撮影")
+            if screenshot_saved:
 
-        time.sleep(30)
+            #! ログイン失敗を通知 クライアントに合った連絡方法
+                content="【WARNING】出品ボタン押下の際にエラー"
+
+                with open(filename, 'rb') as f:
+                    files = {"file": (filename, f, "image/png")}
+                    requests.post(self.discord_url, data={"content": content}, files=files)
+
+            raise(f"{self.account_id} deploy_btnPush 処理中にエラーが発生: {e}")
+
+        time.sleep(3)  # reCAPTCHA処理の待機時間
 
 
 # ----------------------------------------------------------------------------------
@@ -264,7 +269,7 @@ class GetCookie:
                         expiry_timestamp = cookie['expiry']
 
                         # UNIXタイムスタンプを datetime オブジェクトに変換
-                        expiry_datetime = datetime.datetime.utcfromtimestamp(expiry_timestamp)
+                        expiry_datetime = datetime.utcfromtimestamp(expiry_timestamp)
 
                         # テキストに書き込めるようにクリーニング
                         cookie_expiry_timestamp = f"Cookie: {cookie['name']} の有効期限は「{expiry_datetime}」\n"
@@ -305,7 +310,19 @@ class GetCookie:
         self.isChecked()
         self.save_cookies()
 
-        self.logger.debug(f"{__name__}: 処理完了")
+        filename = f"DebugScreenshot/lister_page_{timestamp}.png"
+        screenshot_saved = self.chrome.save_screenshot(filename)
+        self.logger.debug(f"cookie取得 成功時 スクショ撮影")
+        if screenshot_saved:
+
+        #! ログイン失敗を通知 クライアントに合った連絡方法
+            content="【success】cookie取得に成功"
+
+            with open(filename, 'rb') as f:
+                files = {"file": (filename, f, "image/png")}
+                requests.post(self.discord_url, data={"content": content}, files=files)
+
+        time.sleep(2)
 
         self.chrome.quit()
 

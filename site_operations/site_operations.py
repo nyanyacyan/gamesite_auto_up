@@ -139,7 +139,7 @@ class SiteOperations:
 
             # テキスト化
             res_text = response.text
-            self.logger.debug(f"res_text: {res_text}")
+            self.logger.debug(f"res_text: {res_text}"[:30])
 
             #! 後で修正 テキストが確認できたらログインのできたこと内容をピックアップして「ログインの成功の条件」に追加
             # if "ログイン成功の条件" in res_text:
@@ -659,7 +659,6 @@ class SiteOperations:
 #! 「reCAPTCHAなし」でdeploy
 
     def deploy_btnPush(self):
-        '''出品ページにあるすべての入力が完了したあとに押す「出品する」というボタン→ deploy_btn を見つけて押す'''
         try:
             # deploy_btnを探して押す
             self.logger.debug(" deploy_btn を特定開始")
@@ -673,15 +672,27 @@ class SiteOperations:
 
         try:
             # 実行した後のページ読み込みの完了確認
-            WebDriverWait(self.chrome, 5).until(
-            lambda driver: driver.execute_script('return document.readyState') == 'complete'
+            WebDriverWait(self.chrome, 120).until(
+                EC.visibility_of_element_located((By.XPATH, self.config['last_check_xpath']))
             )
-            self.logger.debug(f"{self.account_id} 次のページ読み込み完了")
 
         except Exception as e:
+            # エラーのスクショを送信
+            filename = f"DebugScreenshot/lister_page_{timestamp}.png"
+            screenshot_saved = self.chrome.save_screenshot(filename)
+            self.logger.debug(f"出品ボタン押下の際にエラーになった際 スクショ撮影")
+            if screenshot_saved:
+
+            #! ログイン失敗を通知 クライアントに合った連絡方法
+                content="【WARNING】出品ボタン押下の際にエラー"
+
+                with open(filename, 'rb') as f:
+                    files = {"file": (filename, f, "image/png")}
+                    requests.post(self.discord_url, data={"content": content}, files=files)
+
             raise(f"{self.account_id} deploy_btnPush 処理中にエラーが発生: {e}")
 
-        time.sleep(60)  # reCAPTCHA処理の待機時間
+        time.sleep(3)  # reCAPTCHA処理の待機時間
 
 
 # ----------------------------------------------------------------------------------
@@ -917,6 +928,7 @@ class SiteOperations:
 
         time.sleep(3)
 
+        # 成功のスクショを送信
         filename = f"DebugScreenshot/lister_page_{timestamp}.png"
         screenshot_saved = self.chrome.save_screenshot(filename)
         self.logger.debug(f"出品完了時のスクショ撮影")
@@ -928,7 +940,6 @@ class SiteOperations:
             with open(filename, 'rb') as f:
                 files = {"file": (filename, f, "image/png")}
                 requests.post(self.discord_url, data={"content": content}, files=files)
-
 
         time.sleep(2)
 
@@ -990,7 +1001,7 @@ class SiteOperations:
         self.cookie_login()
         self.lister_btnPush()
         self.photo_upload()
-        self.title_input()
+        self.game_title_input()
         self.agency_input()
         self.item_title()
         self.item_text()
@@ -1007,13 +1018,20 @@ class SiteOperations:
 
         time.sleep(3)
 
-        data = {"content": "出品が完了いたしました。"}
-        response = requests.post(self.discord_url, json=data)
+        # 成功のスクショを送信
+        filename = f"DebugScreenshot/lister_page_{timestamp}.png"
+        screenshot_saved = self.chrome.save_screenshot(filename)
+        self.logger.debug(f"出品完了時のスクショ撮影")
+        if screenshot_saved:
 
-        if response.status_code == 204:
-            self.logger.debug("discordのメッセージ送信OK!!")
-        else:
-            self.logger.error("discordのメッセージ送信失敗。。")
+        #! ログイン失敗を通知 クライアントに合った連絡方法
+            content="【success】出品に成功"
+
+            with open(filename, 'rb') as f:
+                files = {"file": (filename, f, "image/png")}
+                requests.post(self.discord_url, data={"content": content}, files=files)
+
+        time.sleep(2)
 
 
         self.logger.debug(f"{__name__}: 処理完了")

@@ -32,7 +32,7 @@ class GametradeProcess:
 
         chrome_options = Options()
         # chrome_options.add_argument("--headless")  # ヘッドレスモードで実行
-        chrome_options.add_argument("--window-size=1000,800")  # ウィンドウサイズの指定
+        chrome_options.add_argument("--window-size=1200,1000")  # ウィンドウサイズの指定
         chrome_options.add_extension('data/uBlock-Origin.crx')  # iframe対策の広告ブロッカー
         chrome_options.add_extension('data/hlifkpholllijblknnmbfagnkjneagid.crx')
         service = Service(ChromeDriverManager().install())
