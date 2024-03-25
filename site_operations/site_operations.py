@@ -20,18 +20,14 @@ from dotenv import load_dotenv
 
 from selenium import webdriver
 from selenium.common.exceptions import (ElementNotInteractableException,
-                                        InvalidSelectorException,
                                         NoSuchElementException,
                                         UnexpectedAlertPresentException,
                                         NoAlertPresentException,
                                         TimeoutException)
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait, Select
-from webdriver_manager.chrome import ChromeDriverManager
 
 # 自作モジュール
 from auto_login.solve_recaptcha import RecaptchaBreakthrough
@@ -921,13 +917,20 @@ class SiteOperations:
 
         time.sleep(3)
 
-        data = {"content": "出品が完了いたしました。"}
-        response = requests.post(self.discord_url, json=data)
+        filename = f"DebugScreenshot/lister_page_{timestamp}.png"
+        screenshot_saved = self.chrome.save_screenshot(filename)
+        self.logger.debug(f"出品完了時のスクショ撮影")
+        if screenshot_saved:
 
-        if response.status_code == 204:
-            self.logger.debug("discordのメッセージ送信OK!!")
-        else:
-            self.logger.error("discordのメッセージ送信失敗。。")
+        #! ログイン失敗を通知 クライアントに合った連絡方法
+            content="【success】出品に成功"
+
+            with open(filename, 'rb') as f:
+                files = {"file": (filename, f, "image/png")}
+                requests.post(self.discord_url, data={"content": content}, files=files)
+
+
+        time.sleep(2)
 
 
         self.logger.debug(f"{__name__}: 処理完了")
