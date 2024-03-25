@@ -1104,17 +1104,10 @@ class SiteOperations:
         time.sleep(3)
 
         # 成功のスクショを送信
-        filename = f"DebugScreenshot/lister_page_{timestamp}.png"
-        screenshot_saved = self.chrome.save_screenshot(filename)
-        self.logger.debug(f"出品完了時のスクショ撮影")
-        if screenshot_saved:
-
-        #! ログイン失敗を通知 クライアントに合った連絡方法
-            content="【success】出品に成功"
-
-            with open(filename, 'rb') as f:
-                files = {"file": (filename, f, "image/png")}
-                requests.post(self.discord_url, data={"content": content}, files=files)
+        self.info_screenshot_discord(
+            "reCAPTCHA回避 成功",  # discordへの通知
+            "reCAPTCHA回避 成功"  # ログへの通知
+        )
 
         time.sleep(2)
 
