@@ -183,6 +183,8 @@ class SiteOperations:
 
 
 # ----------------------------------------------------------------------------------
+
+
     def cookie_login(self):
         '''Cookieを使ってログイン'''
         cookies_fullpath = os.path.join(cookie_dir, self.cookies_file_name)
@@ -245,6 +247,7 @@ class SiteOperations:
         # #TODO スクリーンショット
         # self.chrome.save_screenshot('cookie_login_after.png')
         # self.logger.debug(f"{self.account_id} ログイン状態のスクショ撮影")
+
 
 # ----------------------------------------------------------------------------------
 
@@ -898,6 +901,7 @@ class SiteOperations:
 
 # ----------------------------------------------------------------------------------
 
+
     def item_comment_btn(self):
         try:
             self.logger.debug(f"{self.account_id} item_comment_btn 捜索 開始")
@@ -925,6 +929,7 @@ class SiteOperations:
             raise Exception(f"{self.account_id}: item_comment_btn が見つかりません:{e}")
 
         time.sleep(2)
+
 
 # ----------------------------------------------------------------------------------
 # '''agency_input を見つけて押す'''
