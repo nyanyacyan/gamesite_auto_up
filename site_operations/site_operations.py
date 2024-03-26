@@ -111,7 +111,7 @@ class SiteOperations:
 
 
 # ----------------------------------------------------------------------------------
-# スクショセットアップ
+# infoスクショセットアップ
 
     def info_screenshot_discord(self, comment, info_message):
         # スクショ用のタイムスタンプ
