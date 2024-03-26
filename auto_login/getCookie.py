@@ -58,7 +58,7 @@ cap_path = os.path.join(parent_dir, 'data', 'hlifkpholllijblknnmbfagnkjneagid.cr
 # '''新しいCookieを取得する or Cookieが使わないサイト'''
 
 class GetCookie:
-    def __init__(self,  loginurl, userid, password, cookies_file_name, config, debug_mode=False):
+    def __init__(self,  loginurl, userid, password, cookies_file_name, account_id, config, debug_mode=False):
         self.logger = self.setup_logger(debug_mode=debug_mode)
         self.setup_chrome()
 
@@ -69,6 +69,7 @@ class GetCookie:
         self.userid = userid
         self.password = password
         self.cookies_file_name = cookies_file_name
+        self.account_id = account_id
         self.discord_url = os.getenv('DISCORD_BOT_URL')
 
 
@@ -216,14 +217,16 @@ class GetCookie:
     def id_pass_input(self):
         try:
             userid_field = self.chrome.find_element(By.XPATH, self.userid_xpath)
+            self.logger.debug(f"{self.account_id} : {self.userid}")
             userid_field.send_keys(self.userid)
-            self.logger.debug(f"{self.site_name} ID入力完了")
+            self.logger.debug(f"{self.account_id} :  ID入力完了")
 
             time.sleep(1)
 
             password_field = self.chrome.find_element(By.XPATH, self.password_xpath)
+            self.logger.debug(f"{self.account_id} : {self.password}")
             password_field.send_keys(self.password)
-            self.logger.debug(f"{self.site_name} パスワード入力完了")
+            self.logger.debug(f"{self.account_id} :  パスワード入力完了")
 
         except NoSuchElementException as e:
             print(f"要素が見つからない: {e}")
