@@ -762,7 +762,7 @@ class SiteOperations:
 
         try:
             # 実行した後のページ読み込みの完了確認
-            WebDriverWait(self.chrome, 120).until(
+            WebDriverWait(self.chrome, 180).until(
                 EC.visibility_of_element_located((By.XPATH, self.config['last_check_xpath']))
             )
 
