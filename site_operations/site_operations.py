@@ -766,22 +766,14 @@ class SiteOperations:
                 EC.visibility_of_element_located((By.XPATH, self.config['last_check_xpath']))
             )
 
+        except TimeoutException as e:
+            self.error_screenshot_discord(
+                "reCAPTCHAのエラーの可能性大・・",  # discordへの出力
+                str(e),
+                "reCAPTCHAのエラーの可能性大・・"  # ログへの出力
+            )
+
         except Exception as e:
-            # # エラーのスクショを送信
-            # filename = f"DebugScreenshot/lister_page_{timestamp}.png"
-            # screenshot_saved = self.chrome.save_screenshot(filename)
-            # self.logger.debug(f"出品ボタン押下の際にエラーになった際 スクショ撮影")
-            # if screenshot_saved:
-
-            # #! ログイン失敗を通知 クライアントに合った連絡方法
-            #     content="【WARNING】出品ボタン押下の際にエラー"
-
-            #     with open(filename, 'rb') as f:
-            #         files = {"file": (filename, f, "image/png")}
-            #         requests.post(self.discord_url, data={"content": content}, files=files)
-
-            # raise(f"{self.account_id} deploy_btnPush 処理中にエラーが発生: {e}")
-
             self.error_screenshot_discord(
                 "reCAPTCHAのエラーの可能性大・・",  # discordへの出力
                 str(e),
