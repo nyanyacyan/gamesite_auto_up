@@ -24,6 +24,7 @@ from selenium import webdriver
 from selenium.common.exceptions import (ElementNotInteractableException,
                                         InvalidSelectorException,
                                         NoSuchElementException,
+                                        WebDriverException,
                                         TimeoutException)
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -59,13 +60,7 @@ cap_path = os.path.join(parent_dir, 'data', 'hlifkpholllijblknnmbfagnkjneagid.cr
 class GetCookie:
     def __init__(self,  loginurl, userid, password, cookies_file_name, config, debug_mode=False):
         self.logger = self.setup_logger(debug_mode=debug_mode)
-        chrome_options = Options()
-        # chrome_options.add_argument("--headless")  # ヘッドレスモードで実行
-        chrome_options.add_argument("--window-size=1200,1000")  # ウィンドウサイズの指定
-        chrome_options.add_extension(security_path)  # iframe対策の広告ブロッカー
-        chrome_options.add_extension(cap_path)
-        service = Service(ChromeDriverManager().install())
-        self.chrome = webdriver.Chrome(service=service, options=chrome_options)
+        self.setup_chrome()
 
         # 現在のURLを示すメソッドを定義
         self.current_url = self.chrome.current_url
@@ -99,8 +94,101 @@ class GetCookie:
 
 
 # ----------------------------------------------------------------------------------
+# Chromeセットアップ（動かす箇所にしか配置しない）(要初期化)
+
+    def setup_chrome(self):
+        try:
+            chrome_options = Options()
+            # chrome_options.add_argument("--headless")  # ヘッドレスモードで実行
+            chrome_options.add_argument("--window-size=1200,1000")  # ウィンドウサイズの指定
+            chrome_options.add_extension(security_path)  # iframe対策の広告ブロッカー
+            chrome_options.add_extension(cap_path)
+            service = Service(ChromeDriverManager().install())
+            self.chrome = webdriver.Chrome(service=service, options=chrome_options)
+            self.current_url = self.chrome.current_url
+
+        except WebDriverException as e:
+            self.logger.error(f"webdriverでのエラーが発生: {e}")
+            self.error_screenshot_discord(
+                "【エラー】webdriverが実行されなかった",
+                str(e),
+                "【エラー】webdriverが実行されなかった"
+            )
 
 
+# ----------------------------------------------------------------------------------
+# infoスクショセットアップ
+
+    def info_screenshot_discord(self, comment, info_message):
+        # スクショ用のタイムスタンプ
+        timestamp = datetime.now().strftime("%m-%d_%H-%M")
+
+        filename = f"lister_page_{timestamp}.png"
+
+        # 絶対path
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+
+        # 現在のスクリプトの親ディレクトリのパス
+        parent_dir = os.path.dirname(script_dir)
+
+        # スクショ保管場所の絶対path
+        screenshot_dir = os.path.join(parent_dir, 'DebugScreenshot/')
+
+        full_path = os.path.join(screenshot_dir, filename)
+
+
+        # スクリーンショットを保存
+        screenshot_saved = self.chrome.save_screenshot(full_path)
+        if screenshot_saved:
+            self.logger.debug(f"スクリーンショットを保存: {full_path}")
+
+        content = f"【INFO】{comment}"
+
+        with open(full_path, 'rb') as file:
+            files = {"file": (full_path, file, "image/png")}
+            response = requests.post(self.discord_url, data={"content": content}, files=files)
+            print(f"Discordへの通知結果: {response.status_code}")
+
+        print(info_message)
+
+
+# ----------------------------------------------------------------------------------
+# エラー時のスクショ セットアップ
+
+    def error_screenshot_discord(self, comment, error_message):
+        # スクショ用のタイムスタンプ
+        timestamp = datetime.now().strftime("%m-%d_%H-%M")
+
+        filename = f"lister_page_{timestamp}.png"
+
+        # 絶対path
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+
+        # 現在のスクリプトの親ディレクトリのパス
+        parent_dir = os.path.dirname(script_dir)
+
+        # スクショ保管場所の絶対path
+        screenshot_dir = os.path.join(parent_dir, 'DebugScreenshot/')
+
+        full_path = os.path.join(screenshot_dir, filename)
+
+
+        # スクリーンショットを保存
+        screenshot_saved = self.chrome.save_screenshot(full_path)
+        if screenshot_saved:
+            self.logger.debug(f"スクリーンショットを保存: {full_path}")
+
+        content = f"【WARNING】{comment}"
+
+        with open(full_path, 'rb') as file:
+            files = {"file": (full_path, file, "image/png")}
+            response = requests.post(self.discord_url, data={"content": content}, files=files)
+            print(f"Discordへの通知結果: {response.status_code}")
+
+        raise Exception(f"{self.account_id} {error_message}")
+
+
+# ----------------------------------------------------------------------------------
     # 同期的なログイン
     def open_site(self):
         '''Cookieで開かない際に使うメソッド'''
@@ -127,13 +215,13 @@ class GetCookie:
     # IDとパスを入力
     def id_pass_input(self):
         try:
-            userid_field = self.chrome.find_element_by_xpath(self.userid_xpath)
+            userid_field = self.chrome.find_element(By.XPATH, self.userid_xpath)
             userid_field.send_keys(self.userid)
             self.logger.debug(f"{self.site_name} ID入力完了")
 
             time.sleep(1)
 
-            password_field = self.chrome.find_element_by_xpath(self.password_xpath)
+            password_field = self.chrome.find_element(By.XPATH, self.password_xpath)
             password_field.send_keys(self.password)
             self.logger.debug(f"{self.site_name} パスワード入力完了")
 
@@ -163,7 +251,7 @@ class GetCookie:
         '''チェックボックスにチェックいれる'''
         # ログインを維持するチェックボックスを探す
         try:
-            login_checkbox = self.chrome.find_element_by_xpath(self.login_checkbox_xpath)
+            login_checkbox = self.chrome.find_element(By.XPATH, self.login_checkbox_xpath)
             self.logger.debug(f"{self.site_name} チェックボタンが見つかりました。")
 
         except ElementNotInteractableException as e:
@@ -199,7 +287,7 @@ class GetCookie:
             # deploy_btn 要素を見つける
             self.logger.debug(f"{self.site_name} 出品ボタン 捜索 開始")
                 # ログインボタン要素を見つける
-            login_button = self.chrome.find_element_by_xpath(self.login_button_xpath)
+            login_button = self.chrome.find_element(By.XPATH, self.login_button_xpath)
 
             self.logger.debug(f"{self.site_name} ボタン捜索完了")
 
@@ -240,7 +328,7 @@ class GetCookie:
     def isChecked(self):
         # user情報があるかを確認してログインできてるかを確認
         try:
-            self.chrome.find_element_by_xpath(self.user_element_xpath)
+            self.chrome.find_element(By.XPATH, self.user_element_xpath)
             self.logger.info(f"{self.site_name} ログイン完了")
 
         except NoSuchElementException as e:
@@ -319,17 +407,10 @@ class GetCookie:
         self.isChecked()
         self.save_cookies()
 
-        filename = f"DebugScreenshot/lister_page_{timestamp}.png"
-        screenshot_saved = self.chrome.save_screenshot(filename)
-        self.logger.debug(f"cookie取得 成功時 スクショ撮影")
-        if screenshot_saved:
-
-        #! ログイン失敗を通知 クライアントに合った連絡方法
-            content="【success】cookie取得に成功"
-
-            with open(filename, 'rb') as f:
-                files = {"file": (filename, f, "image/png")}
-                requests.post(self.discord_url, data={"content": content}, files=files)
+        self.info_screenshot_discord(
+            "【reCAPTCHA回避】Cookieの取得に成功",
+            "【reCAPTCHA回避】Cookieの取得に成功"
+        )
 
         time.sleep(2)
 

@@ -10,7 +10,19 @@ import sys
 import os, time
 import requests
 from datetime import datetime
-from selenium.common.exceptions import NoSuchElementException, ElementNotInteractableException
+from selenium import webdriver
+from selenium.common.exceptions import (ElementNotInteractableException,
+                                        InvalidSelectorException,
+                                        NoSuchElementException,
+                                        WebDriverException,
+                                        TimeoutException)
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+
 
 from twocaptcha import TwoCaptcha
 from dotenv import load_dotenv
@@ -95,7 +107,7 @@ class RecaptchaBreakthrough:
 
 
         # data-sitekeyを検索
-        recaptcha_element = self.chrome.find_element_by_css_selector('[data-sitekey]')
+        recaptcha_element = self.chrome.find_element(By.CSS_SELECTOR, '[data-sitekey]')
 
         # sitekeyの値を抽出
         data_sitekey_value = recaptcha_element.get_attribute('data-sitekey')
@@ -121,7 +133,7 @@ class RecaptchaBreakthrough:
 
         try:
             # トークンをtextareaに入力
-            textarea = self.chrome.find_element_by_id('g-recaptcha-response')
+            textarea = self.chrome.find_element(By.ID, 'g-recaptcha-response')
             self.chrome.execute_script(f'arguments[0].value = "{code}";', textarea)
 
             # textareaの値を取得
@@ -146,7 +158,7 @@ class RecaptchaBreakthrough:
 
             # sitekeyを検索
             self.logger.info(f"【{try_count}回目】reCAPTCHAチェック")
-            elements = self.chrome.find_elements_by_css_selector('[data-sitekey]')
+            elements = self.chrome.find_elements(By.CSS_SELECTOR, '[data-sitekey]')
             if len(elements) > 0:
                 self.logger.info(f"【{try_count}回目】reCAPTCHA 発見")
 

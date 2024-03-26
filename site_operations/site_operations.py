@@ -111,6 +111,7 @@ class SiteOperations:
 
 
 # ----------------------------------------------------------------------------------
+
 # infoスクショセットアップ
 
     def info_screenshot_discord(self, comment, info_message):
@@ -257,7 +258,7 @@ class SiteOperations:
         try:
             # 出品ボタンを探して押す
             self.logger.debug("出品ボタンを特定開始")
-            lister_btn = self.chrome.find_element_by_xpath(self.lister_btn_xpath)
+            lister_btn = self.chrome.find_element(By.XPATH, self.lister_btn_xpath)
             self.logger.debug("出品ボタンを発見")
 
         except NoSuchElementException as e:
@@ -285,7 +286,7 @@ class SiteOperations:
         try:
             # fileのアップロードの<input>要素を探す
             self.logger.debug(" fileのアップロードの<input>要素 を捜索開始")
-            file_input = self.chrome.find_element_by_id(self.photo_file_input_xpath)
+            file_input = self.chrome.find_element(By.ID, self.photo_file_input_xpath)
             self.logger.debug(" fileのアップロードの<input>要素 を発見")
 
         except NoSuchElementException as e:
@@ -323,7 +324,7 @@ class SiteOperations:
         try:
             # title入力欄を探す
             self.logger.debug(" title入力欄 を捜索開始")
-            game_title_input = self.chrome.find_element_by_id(self.title_input_xpath)
+            game_title_input = self.chrome.find_element(By.ID, self.title_input_xpath)
             self.logger.debug(" title入力欄 を発見")
 
         except NoSuchElementException as e:
@@ -361,7 +362,7 @@ class SiteOperations:
             # 入力予測欄を探す
             self.logger.debug(self.title_predict_xpath)
             self.logger.debug(" 入力予測欄 を捜索開始")
-            title_predict = self.chrome.find_element_by_xpath(self.title_predict_xpath)
+            title_predict = self.chrome.find_element(By.XPATH, self.title_predict_xpath)
             self.logger.debug(" 入力予測欄 を発見")
 
             self.logger.debug(" 入力予測欄 をクリック開始")
@@ -380,7 +381,7 @@ class SiteOperations:
             try:
                 # 入力予測欄を探す
                 self.logger.debug(" 入力予測欄 を捜索開始")
-                title_predict = self.chrome.find_element_by_xpath(self.title_predict_xpath)
+                title_predict = self.chrome.find_element(By.XPATH, self.title_predict_xpath)
                 self.logger.debug(" 入力予測欄 を発見")
 
                 time.sleep(1) 
@@ -450,7 +451,7 @@ class SiteOperations:
         try:
             # item_title を探して押す
             self.logger.debug(" item_title の特定 開始")
-            title_input = self.chrome.find_element_by_id(self.config['item_title_xpath'])
+            title_input = self.chrome.find_element(By.ID, self.config['item_title_xpath'])
             self.logger.debug("item_title を発見")
 
         except NoSuchElementException as e:
@@ -493,7 +494,7 @@ class SiteOperations:
         try:
             # item_text を探して押す
             self.logger.debug(" item_text の特定 開始")
-            title_input = self.chrome.find_element_by_id(self.config['item_text_xpath'])
+            title_input = self.chrome.find_element(By.ID, self.config['item_text_xpath'])
             self.logger.debug("item_text を発見")
 
         except NoSuchElementException as e:
@@ -537,7 +538,7 @@ class SiteOperations:
         try:
             # 出品ボタンを探して押す
             self.logger.debug(" level_input を特定開始")
-            level_input = self.chrome.find_element_by_id(self.level_input_xpath)
+            level_input = self.chrome.find_element(By.ID, self.level_input_xpath)
             self.logger.debug(" level_input を発見")
 
         except NoSuchElementException as e:
@@ -580,7 +581,7 @@ class SiteOperations:
         try:
             # 出品ボタンを探して押す
             self.logger.debug(" rank_input 捜索 開始")
-            select_element = self.chrome.find_element_by_id(self.rank_input_xpath)
+            select_element = self.chrome.find_element(By.ID, self.rank_input_xpath)
             self.logger.debug(" rank_input 発見")
 
             self.logger.debug(" rank_input 選択 開始")
@@ -615,7 +616,7 @@ class SiteOperations:
         try:
             # 出品ボタンを探して押す
             self.logger.debug(" legend_input を特定開始")
-            legend_input = self.chrome.find_element_by_id(self.legend_input_xpath)
+            legend_input = self.chrome.find_element(By.ID, self.legend_input_xpath)
             self.logger.debug(" legend_input を発見")
 
         except NoSuchElementException as e:
@@ -645,7 +646,7 @@ class SiteOperations:
         try:
             # item_price を探して押す
             self.logger.debug(" item_price_input の特定 開始")
-            item_price_input = self.chrome.find_element_by_id(self.config['item_price_xpath'])
+            item_price_input = self.chrome.find_element(By.ID, self.config['item_price_xpath'])
             self.logger.debug("item_price_input を発見")
 
             self.logger.debug(f"スプシのタイトルに入力する文言 :{self.spreadsheet_data.get_item_price()}")
@@ -684,7 +685,7 @@ class SiteOperations:
         try:
             # deploy_btnを探して押す
             self.logger.debug(" check_box_Push 捜索 開始")
-            check_box = self.chrome.find_element_by_id(self.config['check_box_xpath'])
+            check_box = self.chrome.find_element(By.ID, self.config['check_box_xpath'])
             self.logger.debug(f"check_box :{check_box}")
             self.logger.debug(" check_box_Push 発見")
 
@@ -714,7 +715,7 @@ class SiteOperations:
         try:
             # deploy_btn 要素を見つける
             self.logger.debug(f"{self.account_id} 出品ボタン 捜索 開始")
-            deploy_btn = self.chrome.find_element_by_xpath(self.deploy_btn_xpath)
+            deploy_btn = self.chrome.find_element(By.XPATH, self.deploy_btn_xpath)
             self.logger.debug(f"{self.account_id} 出品ボタン 捜索 終了")
 
             # ボタンをクリックする
@@ -751,7 +752,7 @@ class SiteOperations:
         try:
             # deploy_btnを探して押す
             self.logger.debug(" deploy_btn を特定開始")
-            deploy_btn = self.chrome.find_element_by_xpath(self.deploy_btn_xpath)
+            deploy_btn = self.chrome.find_element(By.XPATH, self.deploy_btn_xpath)
             self.logger.debug(" deploy_btn を発見")
 
         except NoSuchElementException as e:
@@ -797,11 +798,11 @@ class SiteOperations:
         try:
             # last_check 要素を見つける
             self.logger.debug(f"{self.account_id} 出品完了Message 捜索 開始")
-            self.chrome.find_element_by_xpath(self.config['last_check_xpath'])
+            self.chrome.find_element(By.XPATH, self.config['last_check_xpath'])
             self.logger.debug(f"{self.account_id} 出品完了Message 捜索 終了")
 
             self.logger.debug(f"{self.account_id} 出品完了モーダル 捜索 開始")
-            close_btn = self.chrome.find_element_by_xpath(self.config['close_btn_xpath'])
+            close_btn = self.chrome.find_element(By.XPATH, self.config['close_btn_xpath'])
             self.logger.debug(f"{self.account_id} 出品完了モーダル 捜索 終了")
 
             # ボタンをクリックする
@@ -832,7 +833,7 @@ class SiteOperations:
     def comment_btn(self):
         try:
             self.logger.debug(f"{self.account_id} comment_btn 捜索 開始")
-            comment_btn = self.chrome.find_element_by_xpath(self.config['comment_btn_xpath'])
+            comment_btn = self.chrome.find_element(By.XPATH, self.config['comment_btn_xpath'])
             self.logger.debug(f"{self.account_id} comment_btn 捜索 終了")
 
             # ボタンをクリックする
@@ -864,7 +865,7 @@ class SiteOperations:
         try:
             # item_comment を探して押す
             self.logger.debug(" item_comment の特定 開始")
-            item_comment_input = self.chrome.find_element_by_id(self.config['item_comment_xpath'])
+            item_comment_input = self.chrome.find_element(By.ID, self.config['item_comment_xpath'])
             self.logger.debug("item_comment を発見")
 
         except NoSuchElementException as e:
@@ -905,7 +906,7 @@ class SiteOperations:
     def item_comment_btn(self):
         try:
             self.logger.debug(f"{self.account_id} item_comment_btn 捜索 開始")
-            item_comment_btn = self.chrome.find_element_by_xpath(self.config['item_comment_btn_xpath'])
+            item_comment_btn = self.chrome.find_element(By.XPATH, self.config['item_comment_btn_xpath'])
             self.logger.debug(f"{self.account_id} item_comment_btn 捜索 終了")
 
             # ボタンをクリックする
@@ -939,7 +940,7 @@ class SiteOperations:
         try:
             # 出品ボタンを探して押す
             self.logger.debug(" agency_input 捜索 開始")
-            select_element = self.chrome.find_element_by_id(self.agency_input_xpath)
+            select_element = self.chrome.find_element(By.ID, self.agency_input_xpath)
             self.logger.debug(" agency_input 発見")
 
 
