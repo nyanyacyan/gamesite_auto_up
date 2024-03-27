@@ -1103,9 +1103,10 @@ class SiteOperations:
 
         # 成功のスクショを送信
         self.info_screenshot_discord(
-            "reCAPTCHA回避 成功",  # discordへの通知
-            "reCAPTCHA回避 成功"  # ログへの通知
+            f"{self.account_id}:reCAPTCHA回避 成功",  # discordへの通知
+            f"{self.account_id}:reCAPTCHA回避 成功"  # ログへの通知
         )
+
 
         time.sleep(2)
 
