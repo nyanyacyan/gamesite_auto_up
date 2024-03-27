@@ -828,6 +828,11 @@ class SiteOperations:
             comment_btn = self.chrome.find_element(By.XPATH, self.config['comment_btn_xpath'])
             self.logger.debug(f"{self.account_id} comment_btn 捜索 終了")
 
+            # クリックできるようになるまで待機
+            WebDriverWait(self.chrome, 10).until(
+                EC.element_to_be_clickable((By.XPATH, self.config['comment_btn_xpath']))
+            )
+
             # ボタンをクリックする
             comment_btn.click()
             self.logger.debug(f"{self.account_id} クリック 完了")
