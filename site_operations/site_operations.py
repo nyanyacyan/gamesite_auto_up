@@ -430,7 +430,7 @@ class SiteOperations:
                 if display != 'none':
                     self.logger.debug("display:noneが正しく解除されました。")
                     try:
-                        title_predict = WebDriverWait(self.chrome, 10).until(
+                        title_predict = WebDriverWait(self.chrome, 20).until(
                             EC.visibility_of_element_located((By.XPATH, self.title_predict_xpath))
                         )
                         self.logger.debug("再度、入力予測欄を発見しました。")
@@ -768,16 +768,16 @@ class SiteOperations:
 
         except TimeoutException as e:
             self.error_screenshot_discord(
-                "reCAPTCHAのエラーの可能性大・・",  # discordへの出力
+                f"{self.account_id}: reCAPTCHAのエラーの可能性大・・",  # discordへの出力
                 str(e),
-                "reCAPTCHAのエラーの可能性大・・"  # ログへの出力
+                f"{self.account_id}: reCAPTCHAのエラーの可能性大・・"  # ログへの出力
             )
 
         except Exception as e:
             self.error_screenshot_discord(
-                "reCAPTCHAのエラーの可能性大・・",  # discordへの出力
+                f"{self.account_id}: reCAPTCHAのエラーの可能性大・・",  # discordへの出力
                 str(e),
-                "reCAPTCHAのエラーの可能性大・・"  # ログへの出力
+                f"{self.account_id}: reCAPTCHAのエラーの可能性大・・"  # ログへの出力
             )
 
         time.sleep(3)  # reCAPTCHA処理の待機時間
@@ -1020,8 +1020,8 @@ class SiteOperations:
 
         # 成功のスクショを送信
         self.info_screenshot_discord(
-            "reCAPTCHA回避 成功",  # discordへの通知
-            "reCAPTCHA回避 成功"  # ログへの通知
+            f"{self.account_id}:reCAPTCHA回避 成功",  # discordへの通知
+            f"{self.account_id}:reCAPTCHA回避 成功"  # ログへの通知
         )
 
         time.sleep(2)

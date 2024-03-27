@@ -53,6 +53,8 @@ parent_dir = os.path.dirname(script_dir)
 
 security_path = os.path.join(parent_dir, 'data', 'uBlock-Origin.crx')
 cap_path = os.path.join(parent_dir, 'data', 'hlifkpholllijblknnmbfagnkjneagid.crx')
+cookie_text_path = os.path.join(script_dir, 'cookies')
+
 
 # ----------------------------------------------------------------------------------
 # '''新しいCookieを取得する or Cookieが使わないサイト'''
@@ -360,8 +362,8 @@ class GetCookie:
         #! _gid:24時間の有効期限があり、訪問者の1日ごとの行動を追跡
 
         if cookies:
-            self.logger.debug(f"{self.site_name} クッキーが存在します。")
-            with open(f'auto_login/cookies/{self.site_name}_cookie.txt', 'w', encoding='utf-8') as file:
+            self.logger.debug(f"{self.account_id} クッキーが存在します。")
+            with open(f'{cookie_text_path}/{self.account_id}_cookie.txt', 'w', encoding='utf-8') as file:
                 for cookie in cookies:
                     if 'expiry' in cookie:
                         expiry_timestamp = cookie['expiry']
@@ -377,7 +379,7 @@ class GetCookie:
             self.logger.debug(f"{self.site_name} にはクッキーが存在しません。")
 
         # Cookieのディレクトリを指定
-        cookies_file_path = f'auto_login/cookies/{self.cookies_file_name}'
+        cookies_file_path = f'{cookie_text_path}/{self.cookies_file_name}'
 
         # pickleデータを蓄積（ディレクトリがなければ作成）
         with open(cookies_file_path, 'wb') as file:
@@ -385,7 +387,7 @@ class GetCookie:
 
         self.logger.debug(f"{self.site_name} Cookie、保存完了。")
 
-        with open(f'auto_login/cookies/{self.cookies_file_name}', 'rb') as file:
+        with open(f'{cookie_text_path}/{self.cookies_file_name}', 'rb') as file:
             cookies = pickle.load(file)
 
         # 読み込んだデータを表示
