@@ -9,7 +9,7 @@ from gametrado_process import GametradeProcess
 
 
 # ----------------------------------------------------------------------------------
-
+# 写真のフルパスのために定義
 
 def get_fullpath(relative_path):
     # 絶対path
@@ -25,11 +25,22 @@ def get_fullpath(relative_path):
 # ----------------------------------------------------------------------------------
 
 
-async def main_define(main_url, cookies_file_name, image, gametitle, sheet_url, account_id):
+async def main_define(main_url, cookies_file_name, image, gametitle, sheet_url, account_id, semaphore):
     gametrade = GametradeProcess(main_url, cookies_file_name, image, gametitle, sheet_url, account_id)
 
+    async with semaphore:
 
-    await gametrade.agency_process()
+        await gametrade.agency_process()
+
+
+# ----------------------------------------------------------------------------------
+# 並列処理の間にsleepを入れる
+
+async def process_account(account, semaphore, delay=0):
+
+    await asyncio.sleep(delay)
+
+    return await main_define(account["main_url"], account["cookies_file_name"], account["image"], account["gametitle"], account["sheet_url"], account["account_id"], semaphore)
 
 
 # ----------------------------------------------------------------------------------
@@ -39,76 +50,65 @@ async def agency_main():
     accounts = [
         {
             "main_url" : os.getenv("GAME_TRADE_MAIN_URL"),
-            "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_A"),
-            "image" : get_fullpath(os.getenv("GAME_TRADE_IMAGE_A")),
-            "gametitle" : os.getenv("GAME_TRADE_TITLE_A"),
-            "sheet_url" : os.getenv("GAME_TRADE_SHEET_URL_A"),
-            "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_A"),
+            "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_E"),
+            "image" : get_fullpath(os.getenv("GAME_TRADE_IMAGE_E")),
+            "gametitle" : os.getenv("GAME_TRADE_TITLE_E"),
+            "sheet_url" : os.getenv("GAME_TRADE_SHEET_URL_E"),
+            "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_E"),
         },
         {
             "main_url" : os.getenv("GAME_TRADE_MAIN_URL"),
-            "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_B"),
-            "image" : get_fullpath(os.getenv("GAME_TRADE_IMAGE_B")),
-            "gametitle" : os.getenv("GAME_TRADE_TITLE_B"),
-            "sheet_url" : os.getenv("GAME_TRADE_SHEET_URL_B"),
-            "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_B"),
-        }
-        # {
-        #     "main_url" : os.getenv("GAME_TRADE_MAIN_URL"),
-        #     "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_3"),
-        #     "image" : get_fullpath(os.getenv("GAME_TRADE_IMAGE_3")),
-        #     "gametitle" : os.getenv("GAME_TRADE_TITLE_3"),
-        #     "sheet_url" : os.getenv("GAME_TRADE_SHEET_URL_3"),
-        #     "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_3"),
-        # },
-        # {
-        #     "main_url" : os.getenv("GAME_TRADE_MAIN_URL"),
-        #     "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_4"),
-        #     "image" : get_fullpath(os.getenv("GAME_TRADE_IMAGE_4")),
-        #     "gametitle" : os.getenv("GAME_TRADE_TITLE_4"),
-        #     "sheet_url" : os.getenv("GAME_TRADE_SHEET_URL_4"),
-        #     "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_4"),
-        # },
-        # {
-        #     "main_url" : os.getenv("GAME_TRADE_MAIN_URL"),
-        #     "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_5"),
-        #     "image" : get_fullpath(os.getenv("GAME_TRADE_IMAGE_5")),
-        #     "gametitle" : os.getenv("GAME_TRADE_TITLE_5"),
-        #     "sheet_url" : os.getenv("GAME_TRADE_SHEET_URL_5"),
-        #     "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_5"),
-        # },
-        # {
-        #     "main_url" : os.getenv("GAME_TRADE_MAIN_URL"),
-        #     "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_6"),
-        #     "image" : get_fullpath(os.getenv("GAME_TRADE_IMAGE_6")),
-        #     "gametitle" : os.getenv("GAME_TRADE_TITLE_6"),
-        #     "sheet_url" : os.getenv("GAME_TRADE_SHEET_URL_6"),
-        #     "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_6"),
-        # },
-        # {
-        #     "main_url" : os.getenv("GAME_TRADE_MAIN_URL"),
-        #     "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_7"),
-        #     "image" : get_fullpath(os.getenv("GAME_TRADE_IMAGE_7")),
-        #     "gametitle" : os.getenv("GAME_TRADE_TITLE_7"),
-        #     "sheet_url" : os.getenv("GAME_TRADE_SHEET_URL_7"),
-        #     "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_7"),
-        # },
-        # {
-        #     "main_url" : os.getenv("GAME_TRADE_MAIN_URL"),
-        #     "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_8"),
-        #     "image" : get_fullpath(os.getenv("GAME_TRADE_IMAGE_8")),
-        #     "gametitle" : os.getenv("GAME_TRADE_TITLE_8"),
-        #     "sheet_url" : os.getenv("GAME_TRADE_SHEET_URL_8"),
-        #     "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_8"),
-        # },
+            "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_F"),
+            "image" : get_fullpath(os.getenv("GAME_TRADE_IMAGE_F")),
+            "gametitle" : os.getenv("GAME_TRADE_TITLE_F"),
+            "sheet_url" : os.getenv("GAME_TRADE_SHEET_URL_F"),
+            "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_F"),
+        },
+        {
+            "main_url" : os.getenv("GAME_TRADE_MAIN_URL"),
+            "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_G"),
+            "image" : get_fullpath(os.getenv("GAME_TRADE_IMAGE_G")),
+            "gametitle" : os.getenv("GAME_TRADE_TITLE_G"),
+            "sheet_url" : os.getenv("GAME_TRADE_SHEET_URL_G"),
+            "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_G"),
+        },
+        {
+            "main_url" : os.getenv("GAME_TRADE_MAIN_URL"),
+            "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_H"),
+            "image" : get_fullpath(os.getenv("GAME_TRADE_IMAGE_H")),
+            "gametitle" : os.getenv("GAME_TRADE_TITLE_H"),
+            "sheet_url" : os.getenv("GAME_TRADE_SHEET_URL_H"),
+            "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_H"),
+        },
+
     ]
 
 
-    # 複数の際にはこちらを使う
-    tasks = [main_define(account["main_url"], account["cookies_file_name"], account["image"], account["gametitle"], account["sheet_url"], account["account_id"]) for account in accounts]
+    # 最大で処理できる数を2つまでに絞り込み
+    semaphore = asyncio.Semaphore(2)
 
-    # すべてのタスクが完了するまで待機
-    await asyncio.gather(*tasks)
+    for i in range(0, len(accounts), 2):  # 2つのタスクごとに処理
+
+        tasks = []
+
+        # accountsの中に「image」があるものだけ実施
+        if i < len(accounts) and accounts[i]["image"]:
+
+            # 最初のタスクは遅らせない
+            tasks.append(process_account(accounts[i], semaphore, delay=0))
+
+        if i+1 < len(accounts) and accounts[i+1]["image"]:
+
+            # 2つ目は15秒遅らせる
+            tasks.append(process_account(accounts[i+1], semaphore, delay=60))
+
+
+        try:
+            await asyncio.gather(*tasks)
+
+        except Exception as e:
+            print(f"アカウント入力なし: {e}")
+            continue
 
 
 # ----------------------------------------------------------------------------------

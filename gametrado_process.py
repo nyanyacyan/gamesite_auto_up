@@ -40,14 +40,6 @@ class GametradeProcess:
         self.sheet_url = sheet_url
         self.account_id = account_id
 
-        # chrome_options = Options()
-        # # chrome_options.add_argument("--headless")  # ヘッドレスモードで実行
-        # chrome_options.add_argument("--window-size=1200,1000")  # ウィンドウサイズの指定
-        # chrome_options.add_extension(security_path)  # iframe対策の広告ブロッカー
-        # chrome_options.add_extension(cap_path)
-        # service = Service(ChromeDriverManager().install())
-        # self.chrome = webdriver.Chrome(service=service, options=chrome_options)
-
         # 現在のURLを示すメソッドを定義
         self.setup_chrome()
         self.current_url = self.chrome.current_url
@@ -55,15 +47,8 @@ class GametradeProcess:
 
         self.logger = self.setup_logger(debug_mode=debug_mode)
 
-        # #! GUIで呼び出すときに必要な引数
-        # self.main_url = main_url
-        # self.userid = userid
-        # self.password = password
-
-
         #! テストするインスタンス生成
         self.site_operations = OpGametrade(self.chrome,main_url, cookies_file_name, image, gametitle, sheet_url, account_id)
-
 
 
 # ----------------------------------------------------------------------------------

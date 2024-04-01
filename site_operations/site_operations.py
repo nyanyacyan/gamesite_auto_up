@@ -23,9 +23,11 @@ from selenium.common.exceptions import (ElementNotInteractableException,
                                         NoSuchElementException,
                                         UnexpectedAlertPresentException,
                                         NoAlertPresentException,
+                                        ElementClickInterceptedException,
                                         TimeoutException)
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.alert import Alert
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait, Select
 
@@ -332,11 +334,8 @@ class SiteOperations:
 
         try:
             self.logger.debug(" title_input に入力 開始")
-            pyperclip.copy(self.spreadsheet_data.get_game_title())
 
-            # コピペをSeleniumのKeysを使って行う
-            game_title_input.send_keys(Keys.CONTROL, 'v')
-            game_title_input.send_keys(Keys.COMMAND, 'v')
+            game_title_input.send_keys(self.spreadsheet_data.get_game_title())
 
             # game_title_input.send_keys(self.gametitle)
             self.logger.debug(" title_input に入力 完了")
@@ -369,6 +368,8 @@ class SiteOperations:
             title_predict.click()
             self.logger.debug(" 入力予測欄 をクリック終了")
 
+            time.sleep(3)
+
         # もし要素が見つからない場合にdisplay:noneを鑑みる
         except NoSuchElementException as e:
             self.logger.debug("指定した入力予測欄 が見つかりません")
@@ -392,36 +393,6 @@ class SiteOperations:
 
                 time.sleep(3) 
 
-            except UnexpectedAlertPresentException:
-                try:
-                    alert = self.chrome.switch_to_alert
-                    alert_text = alert.text
-                    if "同一ゲームタイトルでの連続出品はできません。5分以上経過してから再度お試しください。" in alert_text:
-
-                        self.logger.info("【エラー】5分以内に同じものを出品")
-                        alert.accept()
-
-                        # スクショ撮影して送付
-                        filename = f"DebugScreenshot/lister_page_{timestamp}.png"
-                        screenshot_saved = self.chrome.save_screenshot(filename)
-                        self.logger.debug(f"エラーのスクショ撮影")
-                        if screenshot_saved:
-
-                        #! ログイン失敗を通知 クライアントに合った連絡方法
-                            content="【WARNING】5分以内投稿のため出品失敗。。"
-
-                            with open(filename, 'rb') as f:
-                                files = {"file": (filename, f, "image/png")}
-                                requests.post(self.discord_url, data={"content": content}, files=files)
-
-                        self.logger.error(f"【WARNING】5分以内投稿のため出品失敗: {e}")
-                        raise Exception("【WARNING】5分以内投稿のため出品失敗")
-
-                    else:
-                        alert.accept()
-                except NoAlertPresentException:
-                    alert.accept()
-
             # もし見つからなかった場合にdisplay:noneが解除されてるのか確認
             except NoSuchElementException:
                 self.logger.debug("再度の検索でも入力予測欄が見つかりません")
@@ -440,8 +411,23 @@ class SiteOperations:
                 else:
                     self.logger.debug("display:noneが解除されていません。")
 
-        except Exception as e:
-            self.logger.error(f"実行処理中にエラーが発生: {e}")
+        except UnexpectedAlertPresentException as e:
+            try:
+                alert_text = e.alert_text
+
+                self.logger.error(f"【エラー】アラート発生 {alert_text}")
+
+
+                self.error_screenshot_discord(
+                    f"【エラー】アラート発生: {alert_text}",
+                    f"【エラー】アラート発生: {alert_text}"
+                )
+
+                alert = self.chrome.switch_to.alert
+                alert.accept()  # アラートを承認
+
+            except Exception as e:
+                self.logger.error(f"実行処理中にエラーが発生: {e}")
 
 
 # ----------------------------------------------------------------------------------
@@ -652,9 +638,6 @@ class SiteOperations:
             self.logger.debug(f"スプシのタイトルに入力する文言 :{self.spreadsheet_data.get_item_price()}")
             self.logger.debug(" item_price 入力開始")
 
-            # 絵文字があるため一度クリップボードに入れ込んでコピーする
-            pyperclip.copy(self.spreadsheet_data.get_item_price())
-
             # コピペをSeleniumのKeysを使って行う
             item_price_input.send_keys(self.spreadsheet_data.get_item_price())
 
@@ -828,14 +811,29 @@ class SiteOperations:
             comment_btn = self.chrome.find_element(By.XPATH, self.config['comment_btn_xpath'])
             self.logger.debug(f"{self.account_id} comment_btn 捜索 終了")
 
+            try:
             # クリックできるようになるまで待機
-            WebDriverWait(self.chrome, 10).until(
-                EC.element_to_be_clickable((By.XPATH, self.config['comment_btn_xpath']))
-            )
+                WebDriverWait(self.chrome, 10).until(
+                    EC.element_to_be_clickable((By.XPATH, self.config['comment_btn_xpath']))
+                )
 
-            # ボタンをクリックする
-            comment_btn.click()
-            self.logger.debug(f"{self.account_id} クリック 完了")
+                self.logger.info(f"{self.account_id} comment_btn はクリック可能な状態になっている")
+
+                # ボタンをクリックする
+                comment_btn.click()
+                self.logger.debug(f"{self.account_id} クリック 完了")
+
+            except TimeoutException as e:
+                self.error_screenshot_discord(
+                    f"{self.account_id}: クリックが可能な状態にならない",  # discordへの出力
+                    str(e),
+                    f"{self.account_id}: クリックが可能な状態にならない"  # ログへの出力
+                )
+
+        except ElementClickInterceptedException as e:
+            self.logger.debug(f"{self.account_id} comment_btn JSにてクリック 開始")
+            self.chrome.execute_script("arguments[0].click();", comment_btn)
+            self.logger.debug(f"{self.account_id} comment_btn JSにてクリック 終了")
 
         except NoSuchElementException as e:
             filename = f"DebugScreenshot/lister_page_{timestamp}.png"
@@ -871,9 +869,6 @@ class SiteOperations:
         try:
             self.logger.debug(f"スプシのタイトルに入力する文言 :{self.spreadsheet_data.get_item_comment()}")
             self.logger.debug(" item_comment 入力開始")
-
-            # 絵文字があるため一度クリップボードに入れ込んでコピーする
-            pyperclip.copy(self.spreadsheet_data.get_item_comment())
 
             # コピペをSeleniumのKeysを使って行う
             item_comment_input.send_keys(self.spreadsheet_data.get_item_comment())
