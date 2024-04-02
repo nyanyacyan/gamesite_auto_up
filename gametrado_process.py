@@ -33,7 +33,7 @@ cap_path = os.path.join(script_dir, 'data', 'hlifkpholllijblknnmbfagnkjneagid.cr
 # gui作成時にはinitにIDとPasswordを追加して渡せるようにする
 
 class GametradeProcess:
-    def __init__(self, main_url, cookies_file_name, image, gametitle, sheet_url, account_id, debug_mode=False):
+    def __init__(self, main_url, cookies_file_name, image, sheet_url, account_id, debug_mode=False):
         self.main_url = main_url
         self.cookies_file_name = cookies_file_name
         self.image = image
@@ -48,7 +48,7 @@ class GametradeProcess:
         self.logger = self.setup_logger(debug_mode=debug_mode)
 
         #! テストするインスタンス生成
-        self.site_operations = OpGametrade(self.chrome,main_url, cookies_file_name, image, gametitle, sheet_url, account_id)
+        self.site_operations = OpGametrade(self.chrome,main_url, cookies_file_name, image, sheet_url, account_id)
 
 
 # ----------------------------------------------------------------------------------
@@ -66,7 +66,7 @@ class GametradeProcess:
     def setup_chrome(self):
         try:
             chrome_options = Options()
-            chrome_options.add_argument("--headless")  # ヘッドレスモードで実行
+            # chrome_options.add_argument("--headless")  # ヘッドレスモードで実行
             chrome_options.add_argument("--window-size=1200,1000")  # ウィンドウサイズの指定
             chrome_options.add_extension(security_path)  # iframe対策の広告ブロッカー
             chrome_options.add_extension(cap_path)
@@ -197,6 +197,30 @@ class GametradeProcess:
 
         #! ここからインスタンスを入れていく
         await self.site_operations.AgencyOpGetOrElse()
+
+        self.logger.info(" 処理 完了")
+
+        self.chrome.quit()
+
+
+# ----------------------------------------------------------------------------------
+#? ここにカプセル化した内容をいれる
+
+    async def valorant_process(self):
+        self.logger.info(f"{self.account_id} スクレイピング 開始")
+        self.logger.debug(f"{self.account_id} サイトを開いてます。")
+        self.chrome.get(self.main_url)
+
+        current_url = self.chrome.current_url
+        self.logger.debug(f"URL: {current_url}")
+        time.sleep(1)
+
+        # 現在のURL
+        self.logger.debug(f"{__name__} URL: {self.current_url}")
+
+
+        #! ここからインスタンスを入れていく
+        await self.site_operations.valorantOpGetOrElse()
 
         self.logger.info(" 処理 完了")
 

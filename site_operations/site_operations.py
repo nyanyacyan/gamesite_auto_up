@@ -61,13 +61,13 @@ screenshot_dir = os.path.join(parent_dir, 'DebugScreenshot/')
 # Cookie利用してログインして処理を実行するクラス
 
 class SiteOperations:
-    def __init__(self, chrome, main_url, cookies_file_name, image, gametitle, config, sheet_url, account_id, debug_mode=False):
+    def __init__(self, chrome, main_url, cookies_file_name, image, config, sheet_url, account_id, debug_mode=False):
         self.logger = self.setup_logger(debug_mode=debug_mode)
         self.chrome = chrome
         self.main_url = main_url
         self.cookies_file_name = cookies_file_name
         self.image = image
-        self.gametitle = gametitle
+        # self.gametitle = gametitle
         self.sheet_url = sheet_url
         self.account_id = account_id
 
@@ -182,7 +182,7 @@ class SiteOperations:
             response = requests.post(self.discord_url, data={"content": content}, files=files)
             print(f"Discordへの通知結果: {response.status_code}")
 
-        raise Exception(f"{self.account_id} {error_message}")
+        raise Exception(f"{self.account_id} {comment} : {error_message}")
 
 
 # ----------------------------------------------------------------------------------
@@ -200,15 +200,13 @@ class SiteOperations:
         except FileNotFoundError as e:
             self.error_screenshot_discord(
                 f"{self.account_id}: cookie_login ファイルが見つからない",  # discordへの出力
-                str(e),
-                f"{self.account_id}: cookie_login ファイルが見つからない"  # ログへの出力
+                str(e)
             )
 
         except Exception as e:
             self.error_screenshot_discord(
                 f"{self.account_id}: cookie_login 処理中にエラーが発生",  # discordへの出力
-                str(e),
-                f"{self.account_id}: cookie_login 処理中にエラーが発生"  # ログへの出力
+                str(e)
             )
 
         self.chrome.get(self.main_url)
@@ -254,8 +252,7 @@ class SiteOperations:
         except Exception as e:
             self.error_screenshot_discord(
                 f"{self.account_id}: cookie_login 処理中にエラーが発生",  # discordへの出力
-                str(e),
-                f"{self.account_id}: cookie_login 処理中にエラーが発生"  # ログへの出力
+                str(e)
             )
 
         # #TODO スクリーンショット
@@ -276,8 +273,7 @@ class SiteOperations:
         except NoSuchElementException as e:
             self.error_screenshot_discord(
                 f"{self.account_id}: lister_btnPush 要素が見つからない",  # discordへの出力
-                str(e),
-                f"{self.account_id}: lister_btnPush 要素が見つからない"  # ログへの出力
+                str(e)
             )
 
         lister_btn.click()
@@ -292,8 +288,7 @@ class SiteOperations:
         except Exception as e:
             self.error_screenshot_discord(
                 f"{self.account_id}: lister_btnPush 処理中にエラーが発生",  # discordへの出力
-                str(e),
-                f"{self.account_id}: lister_btnPush 処理中にエラーが発生"  # ログへの出力
+                str(e)
             )
 
         time.sleep(1)
@@ -312,8 +307,7 @@ class SiteOperations:
         except NoSuchElementException as e:
             self.error_screenshot_discord(
                 f"{self.account_id}: photo_upload 要素が見つからない",  # discordへの出力
-                str(e),
-                f"{self.account_id}: photo_upload 要素が見つからない"  # ログへの出力
+                str(e)
             )
 
         try:
@@ -326,8 +320,7 @@ class SiteOperations:
         except FileNotFoundError as e:
             self.error_screenshot_discord(
                 f"{self.account_id}: photo_upload ファイルが見つからない",  # discordへの出力
-                str(e),
-                f"{self.account_id}: photo_upload ファイルが見つからない"  # ログへの出力
+                str(e)
             )
 
         time.sleep(1)
@@ -342,8 +335,7 @@ class SiteOperations:
         except Exception as e:
             self.error_screenshot_discord(
                 f"{self.account_id}: photo_upload 処理中にエラーが発生",  # discordへの出力
-                str(e),
-                f"{self.account_id}: photo_upload 処理中にエラーが発生"  # ログへの出力
+                str(e)
             )
 
         time.sleep(1)
@@ -353,6 +345,13 @@ class SiteOperations:
 # タイトル部分を入力して予測変換から指定タイトルを選択
 
     def game_title_input(self):
+        game_title = self.spreadsheet_data.get_game_title()
+        self.logger.debug(f"{self.account_id} game_title: {game_title}")
+
+        full_xpath = self.title_predict_xpath.format(game_title)
+        self.logger.debug(f"{self.account_id} self.title_predict_xpath: {self.title_predict_xpath}")
+        self.logger.debug(f"{self.account_id} full_xpath: {full_xpath}")
+
         try:
             # title入力欄を探す
             self.logger.debug(f"{self.account_id} title入力欄 を捜索開始")
@@ -362,14 +361,14 @@ class SiteOperations:
         except NoSuchElementException as e:
             self.error_screenshot_discord(
                 f"{self.account_id}: game_title_input 要素が見つからない",  # discordへの出力
-                str(e),
-                f"{self.account_id}: game_title_input 要素が見つからない"  # ログへの出力
+                str(e)
             )
 
         try:
             self.logger.debug(f"{self.account_id} title_input に入力 開始")
 
-            game_title_input.send_keys(self.spreadsheet_data.get_game_title())
+            game_title_input.send_keys(game_title)
+            # game_title_input.send_keys(self.spreadsheet_data.get_game_title())
 
             # game_title_input.send_keys(self.gametitle)
             self.logger.debug(f"{self.account_id} title_input に入力 完了")
@@ -377,8 +376,7 @@ class SiteOperations:
         except FileNotFoundError as e:
             self.error_screenshot_discord(
                 f"{self.account_id}: game_title_input ファイルが見つからない",  # discordへの出力
-                str(e),
-                f"{self.account_id}: game_title_input ファイルが見つからない"  # ログへの出力
+                str(e)
             )
 
         time.sleep(1)
@@ -392,14 +390,18 @@ class SiteOperations:
 
         except Exception as e:
             self.logger.error(f"{self.account_id}: 実行処理中にエラーが発生: {e}")
+            self.error_screenshot_discord(
+                f"{self.account_id}: game_title_input 実行処理中にエラーが発生",  # discordへの出力
+                str(e)
+            )
 
         time.sleep(1)
 
         try:
             # 入力予測欄を探す
-            self.logger.debug(f"{self.account_id} : {self.title_predict_xpath}")
+            self.logger.debug(f"{self.account_id} : {full_xpath}")
             self.logger.debug(f"{self.account_id} 入力予測欄 を捜索開始")
-            title_predict = self.chrome.find_element(By.XPATH, self.title_predict_xpath)
+            title_predict = self.chrome.find_element(By.XPATH, full_xpath)
             self.logger.debug(f"{self.account_id} 入力予測欄 を発見")
 
             self.logger.debug(f"{self.account_id} 入力予測欄 をクリック開始")
@@ -420,7 +422,7 @@ class SiteOperations:
             try:
                 # 入力予測欄を探す
                 self.logger.debug(f"{self.account_id} 入力予測欄 を捜索開始")
-                title_predict = self.chrome.find_element(By.XPATH, self.title_predict_xpath)
+                title_predict = self.chrome.find_element(By.XPATH, full_xpath)
                 self.logger.debug(f"{self.account_id} 入力予測欄 を発見")
 
                 time.sleep(1) 
@@ -435,8 +437,7 @@ class SiteOperations:
             except NoSuchElementException:
                 self.error_screenshot_discord(
                     f"{self.account_id}: game_title_input 要素が見つからない",  # discordへの出力
-                    str(e),
-                    f"{self.account_id}: game_title_input 要素が見つからない"  # ログへの出力
+                    str(e)
                 )
 
                 display = self.chrome.execute_script("return document.getElementById('ui-id-2').style.display;")
@@ -444,15 +445,14 @@ class SiteOperations:
                     self.logger.debug(f"{self.account_id} display:noneが正しく解除されました。")
                     try:
                         title_predict = WebDriverWait(self.chrome, 20).until(
-                            EC.visibility_of_element_located((By.XPATH, self.title_predict_xpath))
+                            EC.visibility_of_element_located((By.XPATH, full_xpath))
                         )
                         self.logger.debug(f"{self.account_id} 再度、入力予測欄を発見しました。")
 
                     except TimeoutException:
                         self.error_screenshot_discord(
                             f"{self.account_id}: game_title_input タイムアウトエラー",  # discordへの出力
-                            str(e),
-                            f"{self.account_id}: game_title_input タイムアウトエラー"  # ログへの出力
+                            str(e)
                         )
 
                 else:
@@ -468,7 +468,7 @@ class SiteOperations:
 
                 self.error_screenshot_discord(
                     f"【エラー】アラート発生: {alert_text}",
-                    f"【エラー】アラート発生: {alert_text}"
+                    str(e)
                 )
 
                 alert = self.chrome.switch_to.alert
@@ -477,8 +477,7 @@ class SiteOperations:
             except Exception as e:
                 self.error_screenshot_discord(
                     f"{self.account_id}: game_title_input 処理中にエラーが発生",  # discordへの出力
-                    str(e),
-                    f"{self.account_id}: game_title_input 処理中にエラーが発生"  # ログへの出力
+                    str(e)
                 )
 
 
@@ -515,15 +514,13 @@ class SiteOperations:
         except NoSuchElementException as e:
             self.error_screenshot_discord(
                 f"{self.account_id}: item_title 要素が見つからない",  # discordへの出力
-                str(e),
-                f"{self.account_id}: item_title 要素が見つからない"  # ログへの出力
+                str(e)
             )
 
         except Exception as e:
             self.error_screenshot_discord(
                 f"{self.account_id}: item_title 処理中にエラーが発生",  # discordへの出力
-                str(e),
-                f"{self.account_id}: item_title 処理中にエラーが発生"  # ログへの出力
+                str(e)
             )
 
         time.sleep(1)
@@ -561,15 +558,13 @@ class SiteOperations:
         except NoSuchElementException as e:
             self.error_screenshot_discord(
                 f"{self.account_id}: item_text 要素が見つからない",  # discordへの出力
-                str(e),
-                f"{self.account_id}: item_text 要素が見つからない"  # ログへの出力
+                str(e)
             )
 
         except Exception as e:
             self.error_screenshot_discord(
                 f"{self.account_id}: item_text 処理中にエラーが発生",  # discordへの出力
-                str(e),
-                f"{self.account_id}: item_text 処理中にエラーが発生"  # ログへの出力
+                str(e)
             )
 
         time.sleep(1)
@@ -602,8 +597,7 @@ class SiteOperations:
 
             self.error_screenshot_discord(
                 f"{self.account_id}: level_input 要素が見つからない",  # discordへの出力
-                str(e),
-                f"{self.account_id}: level_input 要素が見つからない"  # ログへの出力
+                str(e)
             )
 
         self.logger.debug(f"{self.account_id} level_input に数値入力 開始")
@@ -620,8 +614,7 @@ class SiteOperations:
         except Exception as e:
             self.error_screenshot_discord(
                 f"{self.account_id}: level_input 処理中にエラーが発生",  # discordへの出力
-                str(e),
-                f"{self.account_id}: level_input 処理中にエラーが発生"  # ログへの出力
+                str(e)
             )
 
         time.sleep(1)
@@ -655,15 +648,13 @@ class SiteOperations:
         except NoSuchElementException as e:
             self.error_screenshot_discord(
                 f"{self.account_id}: rank_input 要素が見つからない",  # discordへの出力
-                str(e),
-                f"{self.account_id}: rank_input 要素が見つからない"  # ログへの出力
+                str(e)
             )
 
         except Exception as e:
             self.error_screenshot_discord(
                 f"{self.account_id}: rank_input 処理中にエラーが発生",  # discordへの出力
-                str(e),
-                f"{self.account_id}: rank_input 処理中にエラーが発生"  # ログへの出力
+                str(e)
             )
 
         time.sleep(1)
@@ -692,15 +683,13 @@ class SiteOperations:
         except NoSuchElementException as e:
             self.error_screenshot_discord(
                 f"{self.account_id}: legend_input 要素が見つからない",  # discordへの出力
-                str(e),
-                f"{self.account_id}: legend_input 要素が見つからない"  # ログへの出力
+                str(e)
             )
 
         except Exception as e:
             self.error_screenshot_discord(
                 f"{self.account_id}: legend_input 処理中にエラーが発生",  # discordへの出力
-                str(e),
-                f"{self.account_id}: legend_input 処理中にエラーが発生"  # ログへの出力
+                str(e)
             )
 
         time.sleep(1)
@@ -733,15 +722,13 @@ class SiteOperations:
         except NoSuchElementException as e:
             self.error_screenshot_discord(
                 f"{self.account_id}: deploy_btn 要素が見つからない",  # discordへの出力
-                str(e),
-                f"{self.account_id}: deploy_btn 要素が見つからない"  # ログへの出力
+                str(e)
             )
 
         except Exception as e:
             self.error_screenshot_discord(
                 f"{self.account_id}: item_price 処理中にエラーが発生",  # discordへの出力
-                str(e),
-                f"{self.account_id}: item_price 処理中にエラーが発生"  # ログへの出力
+                str(e)
             )
 
 
@@ -763,8 +750,7 @@ class SiteOperations:
         except NoSuchElementException as e:
             self.error_screenshot_discord(
                 f"{self.account_id}: check_box_Push 要素が見つからない",  # discordへの出力
-                str(e),
-                f"{self.account_id}: check_box_Push 要素が見つからない"  # ログへの出力
+                str(e)
             )
 
 
@@ -780,8 +766,7 @@ class SiteOperations:
         except Exception as e:
             self.error_screenshot_discord(
                 f"{self.account_id}: check_box_Push 処理中にエラーが発生",  # discordへの出力
-                str(e),
-                f"{self.account_id}: check_box_Push 処理中にエラーが発生"  # ログへの出力
+                str(e)
             )
 
         time.sleep(1)
@@ -837,8 +822,7 @@ class SiteOperations:
         except NoSuchElementException as e:
             self.error_screenshot_discord(
                 f"{self.account_id}: deploy_btn 要素が見つからない",  # discordへの出力
-                str(e),
-                f"{self.account_id}: deploy_btn 要素が見つからない"  # ログへの出力
+                str(e)
             )
 
         deploy_btn.click()
@@ -852,15 +836,13 @@ class SiteOperations:
         except TimeoutException as e:
             self.error_screenshot_discord(
                 f"{self.account_id}: reCAPTCHAのエラーの可能性大・・",  # discordへの出力
-                str(e),
-                f"{self.account_id}: reCAPTCHAのエラーの可能性大・・"  # ログへの出力
+                str(e)
             )
 
         except Exception as e:
             self.error_screenshot_discord(
                 f"{self.account_id}: reCAPTCHAのエラーの可能性大・・",  # discordへの出力
-                str(e),
-                f"{self.account_id}: reCAPTCHAのエラーの可能性大・・"  # ログへの出力
+                str(e)
             )
 
         time.sleep(3)  # reCAPTCHA処理の待機時間
@@ -885,19 +867,16 @@ class SiteOperations:
             self.logger.debug(f"{self.account_id} クリック 完了")
 
         except NoSuchElementException as e:
-            filename = f"DebugScreenshot/lister_page_{timestamp}.png"
-            screenshot_saved = self.chrome.save_screenshot(filename)
-            self.logger.debug(f"エラーのスクショ撮影")
-            if screenshot_saved:
+            self.error_screenshot_discord(
+                f"{self.account_id}: 出品完了 確認要素が見つからない",  # discordへの出力
+                str(e)
+            )
 
-            #! ログイン失敗を通知 クライアントに合った連絡方法
-                content="【WARNING】出品に失敗してる可能性あり。。"
-
-                with open(filename, 'rb') as f:
-                    files = {"file": (filename, f, "image/png")}
-                    requests.post(self.discord_url, data={"content": content}, files=files)
-
-            raise Exception(f"{self.account_id}: 【WARNING】 出品処理に失敗: {e}")
+        except Exception as e:
+            self.error_screenshot_discord(
+                f"{self.account_id}: 出品完了 確認確認中にエラーが発生",  # discordへの出力
+                str(e)
+            )
 
         time.sleep(2)
 
@@ -926,8 +905,7 @@ class SiteOperations:
             except TimeoutException as e:
                 self.error_screenshot_discord(
                     f"{self.account_id}: クリックが可能な状態にならない",  # discordへの出力
-                    str(e),
-                    f"{self.account_id}: クリックが可能な状態にならない"  # ログへの出力
+                    str(e)
                 )
 
         except ElementClickInterceptedException as e:
@@ -963,10 +941,6 @@ class SiteOperations:
             item_comment_input = self.chrome.find_element(By.ID, self.config['item_comment_xpath'])
             self.logger.debug("item_comment を発見")
 
-        except NoSuchElementException as e:
-            raise(f"{self.account_id}: item_comment が見つかりません:{e}")
-
-        try:
             self.logger.debug(f"スプシのタイトルに入力する文言 :{self.spreadsheet_data.get_item_comment()}")
             self.logger.debug(" item_comment 入力開始")
 
@@ -975,19 +949,24 @@ class SiteOperations:
 
             self.logger.debug(" item_comment 入力完了")
 
-        # もし要素が見つからない場合
-        except NoSuchElementException as e:
-            raise(f"{self.account_id}: 指定した入力予測欄 が見つかりません: {e}")
-
-        try:
             # ボタンを押した後のページ読み込みの完了確認
             WebDriverWait(self.chrome, 5).until(
             lambda driver: driver.execute_script('return document.readyState') == 'complete'
             )
             self.logger.debug(f"{self.account_id} ページ読み込み完了")
 
+        # もし要素が見つからない場合
+        except NoSuchElementException as e:
+            self.error_screenshot_discord(
+                f"{self.account_id}: item_comment 確認要素が見つからない",  # discordへの出力
+                str(e)
+            )
+
         except Exception as e:
-            raise(f"{self.account_id} item_comment 処理中にエラーが発生: {e}")
+            self.error_screenshot_discord(
+                f"{self.account_id}: item_comment 処理中にエラーが発生",  # discordへの出力
+                str(e)
+            )
 
         time.sleep(1)
 
@@ -1006,22 +985,18 @@ class SiteOperations:
             self.logger.debug(f"{self.account_id} クリック 完了")
 
         except NoSuchElementException as e:
-            filename = f"DebugScreenshot/lister_page_{timestamp}.png"
-            screenshot_saved = self.chrome.save_screenshot(filename)
-            self.logger.debug(f"エラーのスクショ撮影")
-            if screenshot_saved:
+            self.error_screenshot_discord(
+                f"{self.account_id}: item_comment_btn 要素が見つからない",  # discordへの出力
+                str(e)
+            )
 
-            #! ログイン失敗を通知 クライアントに合った連絡方法
-                content="【WARNING】出品に失敗してる可能性あり。。"
+        except Exception as e:
+            self.error_screenshot_discord(
+                f"{self.account_id}: item_comment_btn 処理中にエラーが発生",  # discordへの出力
+                str(e)
+            )
 
-                with open(filename, 'rb') as f:
-                    files = {"file": (filename, f, "image/png")}
-                    requests.post(self.discord_url, data={"content": content}, files=files)
-
-            self.logger.error(f"【WARNING】item_comment_btn が見つからない: {e}")
-            raise Exception(f"{self.account_id}: item_comment_btn が見つかりません:{e}")
-
-        time.sleep(2)
+        time.sleep(1)
 
 
 # ----------------------------------------------------------------------------------
@@ -1077,7 +1052,10 @@ class SiteOperations:
             select_element.send_keys(Keys.ENTER)
 
         except NoSuchElementException as e:
-            raise Exception(f"{self.account_id}: comment_btn が見つかりません:{e}")
+            self.error_screenshot_discord(
+                f"{self.account_id}: 出品完了 確認要素が見つからない",  # discordへの出力
+                str(e)
+            )
 
         try:
             # ボタンを押した後のページ読み込みの完了確認
@@ -1176,6 +1154,7 @@ class SiteOperations:
 
 # ----------------------------------------------------------------------------------
 # メインメソッド(代行)
+# valorant(代行)
 
     def agency_site_operation(self):
         '''メインメソッド'''
@@ -1222,6 +1201,53 @@ class SiteOperations:
 
         # ブロッキング、実行タイミング、並列処理などを適切に行えるように「functools」にてワンクッション置いて実行
         await loop.run_in_executor(None, functools.partial(self.agency_site_operation))
+
+
+# ----------------------------------------------------------------------------------
+# valorantメインメソッド
+
+    def site_operation_valorant(self):
+        self.logger.debug(f"{__name__}: 処理開始")
+
+        self.cookie_login()
+        self.lister_btnPush()
+        self.photo_upload()
+        self.game_title_input()
+        self.item_title()
+        self.item_text()
+        self.level_input()
+        # self.rank_input()
+        # self.legend_input()
+        self.item_price()
+        self.check_box_Push()
+        self.deploy_btnPush()
+        self.last_check()
+        self.comment_btn()
+        self.item_comment()
+        self.item_comment_btn()
+
+        time.sleep(3)
+
+        # 成功のスクショを送信
+        self.info_screenshot_discord(
+            f"{self.account_id}:【valorant】reCAPTCHA回避 成功",  # discordへの通知
+            f"{self.account_id}:【valorant】reCAPTCHA回避 成功"  # ログへの通知
+        )
+
+        time.sleep(2)
+
+
+        self.logger.debug(f"{__name__}: 処理完了")
+
+
+# ----------------------------------------------------------------------------------
+# メインメソッドを非同期処理に変換
+
+    async def agency_site_operation_valorant_async(self):
+        loop = asyncio.get_running_loop()
+
+        # ブロッキング、実行タイミング、並列処理などを適切に行えるように「functools」にてワンクッション置いて実行
+        await loop.run_in_executor(None, functools.partial(self.site_operation_valorant))
 
 
 # ----------------------------------------------------------------------------------
