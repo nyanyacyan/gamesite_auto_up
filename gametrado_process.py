@@ -66,7 +66,7 @@ class GametradeProcess:
     def setup_chrome(self):
         try:
             chrome_options = Options()
-            # chrome_options.add_argument("--headless")  # ヘッドレスモードで実行
+            chrome_options.add_argument("--headless")  # ヘッドレスモードで実行
             chrome_options.add_argument("--window-size=1200,1000")  # ウィンドウサイズの指定
             chrome_options.add_extension(security_path)  # iframe対策の広告ブロッカー
             chrome_options.add_extension(cap_path)
@@ -159,8 +159,8 @@ class GametradeProcess:
 #? ここにカプセル化した内容をいれる
 
     async def process(self):
-        self.logger.info(" スクレイピング 開始")
-        self.logger.debug("サイトを開いてます。")
+        self.logger.info(f"{self.account_id} スクレイピング 開始")
+        self.logger.debug(f"{self.account_id}サイトを開いてます。")
         self.chrome.get(self.main_url)
 
         current_url = self.chrome.current_url
@@ -183,8 +183,8 @@ class GametradeProcess:
 #? ここにカプセル化した内容をいれる
 
     async def agency_process(self):
-        self.logger.info(" スクレイピング 開始")
-        self.logger.debug("サイトを開いてます。")
+        self.logger.info(f"{self.account_id} スクレイピング 開始")
+        self.logger.debug(f"{self.account_id} サイトを開いてます。")
         self.chrome.get(self.main_url)
 
         current_url = self.chrome.current_url

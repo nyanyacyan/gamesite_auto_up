@@ -207,7 +207,18 @@ class GetCookie:
             self.logger.debug(f"{self.site_name} 入力開始")
 
         except TimeoutException as e:
-            print(f"タイムアウトエラー:{e}")
+            self.error_screenshot_discord(
+                f"{self.site_name} open_site タイムアウトエラー {e}",  # discordへの出力
+                str(e),
+                f"{self.site_name} open_site タイムアウトエラー {e}"  # ログへの出力
+            )
+
+        except Exception as e:
+            self.error_screenshot_discord(
+                f"{self.site_name} open_site 処理中にエラーが発生しました {e}",  # discordへの出力
+                str(e),
+                f"{self.site_name} open_site 処理中にエラーが発生しました {e}"  # ログへの出力
+            )
 
         time.sleep(5)
 
@@ -218,33 +229,44 @@ class GetCookie:
     # IDとパスを入力
     def id_pass_input(self):
         try:
+            self.logger.debug(f"{self.account_id} : ID入力要素 捜索開始")
             userid_field = self.chrome.find_element(By.XPATH, self.userid_xpath)
             self.logger.debug(f"{self.account_id} : {self.userid}")
             userid_field.send_keys(self.userid)
-            self.logger.debug(f"{self.account_id} :  ID入力完了")
+            self.logger.debug(f"{self.account_id} : ID入力完了")
 
             time.sleep(1)
 
             password_field = self.chrome.find_element(By.XPATH, self.password_xpath)
             self.logger.debug(f"{self.account_id} : {self.password}")
             password_field.send_keys(self.password)
-            self.logger.debug(f"{self.account_id} :  パスワード入力完了")
+            self.logger.debug(f"{self.account_id} : パスワード入力 完了")
+
+            # ページが完全に読み込まれるまで待機
+            WebDriverWait(self.chrome, 10).until(
+                lambda d: d.execute_script("return document.readyState") == "complete"
+            )
+            self.logger.debug("ページは完全に表示されてる")
+
+            self.logger.debug(f"{self.account_id} : JavaScript にてクリック")
+            WebDriverWait(self.chrome, 10).until(
+                EC.visibility_of_element_located((By.XPATH, self.login_button_xpath))
+            )
+            self.logger.debug(f"{self.account_id} ： JavaScript にてクリック 完了")
 
         except NoSuchElementException as e:
-            print(f"要素が見つからない: {e}")
+            self.error_screenshot_discord(
+                f"{self.site_name} id_pass_input 要素が見つかりません {e}",  # discordへの出力
+                str(e),
+                f"{self.site_name} id_pass_input 要素が見つかりません {e}"  # ログへの出力
+            )
 
-
-        # ページが完全に読み込まれるまで待機
-        WebDriverWait(self.chrome, 10).until(
-            lambda d: d.execute_script("return document.readyState") == "complete"
-        )
-        self.logger.debug("ページは完全に表示されてる")
-
-
-        WebDriverWait(self.chrome, 10).until(
-            EC.visibility_of_element_located((By.XPATH, self.login_button_xpath))
-        )
-        self.logger.debug(f"{self.site_name} ボタンDOMの読み込みは完了してる")
+        except Exception as e:
+            self.error_screenshot_discord(
+                f"{self.site_name} id_pass_input 処理中にエラーが発生しました {e}",  # discordへの出力
+                str(e),
+                f"{self.site_name} id_pass_input 処理中にエラーが発生しました {e}"  # ログへの出力
+            )
 
         time.sleep(1)
 
@@ -257,22 +279,22 @@ class GetCookie:
         # ログインを維持するチェックボックスを探す
         try:
             login_checkbox = self.chrome.find_element(By.XPATH, self.login_checkbox_xpath)
-            self.logger.debug(f"{self.site_name} チェックボタンが見つかりました。")
+            self.logger.debug(f"{self.site_name} login_checkbox 見つかりました。")
 
         except ElementNotInteractableException as e:
-            self.logger.error(f"{self.site_name} チェックボックスが見つかりません。{e}")
+            self.logger.error(f"{self.site_name} login_checkbox 見つかりません。{e}")
 
         except InvalidSelectorException:
-            self.logger.debug(f"{self.site_name} チェックボックスないためスキップ")
+            self.logger.debug(f"{self.site_name} login_checkbox ないためスキップ")
 
         try:
             if login_checkbox:
             # remember_boxをクリックする
                 login_checkbox.click()
-            self.logger.debug(f"{self.site_name} チェックボタンをクリック")
+            self.logger.debug(f"{self.site_name} login_checkbox クリック")
 
         except UnboundLocalError:
-            self.logger.debug(f"{self.site_name} チェックボタンなし")
+            self.logger.debug(f"{self.site_name}  login_checkbox なし")
 
         time.sleep(3)
 
@@ -296,16 +318,21 @@ class GetCookie:
 
             self.logger.debug(f"{self.site_name} ボタン捜索完了")
 
-        except NoSuchElementException as e:
-            raise(f"{self.account_id}: deploy_btnPush が見つかりません:{e}")
+            # ボタンをクリックする
+            self.logger.debug(f"{self.site_name} ボタン捜索完了")
+            login_button.click()
+            self.logger.debug(f"{self.site_name} ボタン捜索完了")
 
-        # ボタンをクリックする
-        login_button.click()
-
-        try:
             # 実行した後のページ読み込みの完了確認
             WebDriverWait(self.chrome, 120).until(
                 EC.visibility_of_element_located((By.XPATH, self.config['user_element_xpath']))
+            )
+
+        except NoSuchElementException as e:
+            self.error_screenshot_discord(
+                f"{self.site_name} recaptcha_process 要素が見つかりません {e}",  # discordへの出力
+                str(e),
+                f"{self.site_name} recaptcha_process 要素が見つかりません {e}"  # ログへの出力
             )
 
         except TimeoutException as e:
@@ -335,10 +362,17 @@ class GetCookie:
             self.logger.info(f"{self.site_name} ログイン完了")
 
         except NoSuchElementException as e:
-            self.logger.error(f"{self.site_name} カートの確認が取れませんでした: {e}")
-
+            self.error_screenshot_discord(
+                f"{self.site_name} isChecked 要素が見つかりません {e}",  # discordへの出力
+                str(e),
+                f"{self.site_name} isChecked 要素が見つかりません {e}"  # ログへの出力
+            )
         except Exception as e:
-            self.logger.error(f"{self.site_name} 処理中にエラーが発生しました: {e}")
+            self.error_screenshot_discord(
+                f"{self.site_name} isChecked 処理中にエラーが発生しました {e}",  # discordへの出力
+                str(e),
+                f"{self.site_name} isChecked 処理中にエラーが発生しました {e}"  # ログへの出力
+            )
 
         time.sleep(1)
 
@@ -410,10 +444,10 @@ class GetCookie:
         self.isChecked()
         self.save_cookies()
 
-        self.info_screenshot_discord(
-            "【reCAPTCHA回避】Cookieの取得に成功",
-            "【reCAPTCHA回避】Cookieの取得に成功"
-        )
+        # self.info_screenshot_discord(
+        #     "【reCAPTCHA回避】Cookieの取得に成功",
+        #     "【reCAPTCHA回避】Cookieの取得に成功"
+        # )
 
         time.sleep(2)
 

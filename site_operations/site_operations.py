@@ -173,7 +173,7 @@ class SiteOperations:
         # スクリーンショットを保存
         screenshot_saved = self.chrome.save_screenshot(full_path)
         if screenshot_saved:
-            self.logger.debug(f"スクリーンショットを保存: {full_path}")
+            self.logger.debug(f"{self.account_id} スクリーンショットを保存: {full_path}")
 
         content = f"【WARNING】{comment}"
 
@@ -186,10 +186,9 @@ class SiteOperations:
 
 
 # ----------------------------------------------------------------------------------
-
+# Cookieを使ってログイン
 
     def cookie_login(self):
-        '''Cookieを使ってログイン'''
         cookies_fullpath = os.path.join(cookie_dir, self.cookies_file_name)
 
         cookies = []
@@ -199,10 +198,18 @@ class SiteOperations:
             cookies = pickle.load(open(cookies_fullpath, 'rb'))
 
         except FileNotFoundError as e:
-            self.logger.error(f"ファイルが見つかりません:{e}")
+            self.error_screenshot_discord(
+                f"{self.account_id}: cookie_login ファイルが見つからない",  # discordへの出力
+                str(e),
+                f"{self.account_id}: cookie_login ファイルが見つからない"  # ログへの出力
+            )
 
         except Exception as e:
-            self.logger.error(f"処理中にエラーが起きました:{e}")
+            self.error_screenshot_discord(
+                f"{self.account_id}: cookie_login 処理中にエラーが発生",  # discordへの出力
+                str(e),
+                f"{self.account_id}: cookie_login 処理中にエラーが発生"  # ログへの出力
+            )
 
         self.chrome.get(self.main_url)
         self.logger.info("メイン画面にアクセス")
@@ -245,7 +252,11 @@ class SiteOperations:
             self.logger.debug(f"{self.account_id} ログインページ読み込み完了")
 
         except Exception as e:
-            self.logger.error(f"{self.account_id} ログイン処理中にエラーが発生: {e}")
+            self.error_screenshot_discord(
+                f"{self.account_id}: cookie_login 処理中にエラーが発生",  # discordへの出力
+                str(e),
+                f"{self.account_id}: cookie_login 処理中にエラーが発生"  # ログへの出力
+            )
 
         # #TODO スクリーンショット
         # self.chrome.save_screenshot('cookie_login_after.png')
@@ -253,18 +264,21 @@ class SiteOperations:
 
 
 # ----------------------------------------------------------------------------------
-
+# 出品ボタンを見つけて押す
 
     def lister_btnPush(self):
-        '''出品ボタンを見つけて押す'''
         try:
             # 出品ボタンを探して押す
-            self.logger.debug("出品ボタンを特定開始")
+            self.logger.debug(f"{self.account_id} 出品ボタンを特定 開始")
             lister_btn = self.chrome.find_element(By.XPATH, self.lister_btn_xpath)
-            self.logger.debug("出品ボタンを発見")
+            self.logger.debug(f"{self.account_id} 出品ボタン 発見")
 
         except NoSuchElementException as e:
-            self.logger.error(f"出品ボタンが見つかりません:{e}")
+            self.error_screenshot_discord(
+                f"{self.account_id}: lister_btnPush 要素が見つからない",  # discordへの出力
+                str(e),
+                f"{self.account_id}: lister_btnPush 要素が見つからない"  # ログへの出力
+            )
 
         lister_btn.click()
 
@@ -276,7 +290,11 @@ class SiteOperations:
             self.logger.debug(f"{self.account_id} ページ読み込み完了")
 
         except Exception as e:
-            self.logger.error(f"{self.account_id} 処理中にエラーが発生: {e}")
+            self.error_screenshot_discord(
+                f"{self.account_id}: lister_btnPush 処理中にエラーが発生",  # discordへの出力
+                str(e),
+                f"{self.account_id}: lister_btnPush 処理中にエラーが発生"  # ログへの出力
+            )
 
         time.sleep(1)
 
@@ -287,22 +305,30 @@ class SiteOperations:
     def photo_upload(self):
         try:
             # fileのアップロードの<input>要素を探す
-            self.logger.debug(" fileのアップロードの<input>要素 を捜索開始")
+            self.logger.debug(f"{self.account_id} fileのアップロードの<input>要素 を捜索開始")
             file_input = self.chrome.find_element(By.ID, self.photo_file_input_xpath)
-            self.logger.debug(" fileのアップロードの<input>要素 を発見")
+            self.logger.debug(f"{self.account_id} fileのアップロードの<input>要素 を発見")
 
         except NoSuchElementException as e:
-            self.logger.error(f" fileのアップロードの<input>要素 が見つかりません:{e}")
+            self.error_screenshot_discord(
+                f"{self.account_id}: photo_upload 要素が見つからない",  # discordへの出力
+                str(e),
+                f"{self.account_id}: photo_upload 要素が見つからない"  # ログへの出力
+            )
 
         try:
-            self.logger.debug(" self.photo_file_xpath を特定開始")
-            self.logger.debug(f" self.image {self.image}")
+            self.logger.debug(f"{self.account_id} self.photo_file_xpath を特定開始")
+            self.logger.debug(f"{self.account_id} self.image {self.image}")
             # image_full_path = os.path.abspath(self.image)
             file_input.send_keys(self.image)
-            self.logger.debug(" self.photo_file_xpath を特定開始")
+            self.logger.debug(f"{self.account_id} self.photo_file_xpath を特定開始")
 
         except FileNotFoundError as e:
-            self.logger.error(f" photo_file_xpath が見つかりません:{e}")
+            self.error_screenshot_discord(
+                f"{self.account_id}: photo_upload ファイルが見つからない",  # discordへの出力
+                str(e),
+                f"{self.account_id}: photo_upload ファイルが見つからない"  # ログへの出力
+            )
 
         time.sleep(1)
 
@@ -311,10 +337,14 @@ class SiteOperations:
             WebDriverWait(self.chrome, 5).until(
             lambda driver: driver.execute_script('return document.readyState') == 'complete'
             )
-            self.logger.debug("ページ読み込み完了")
+            self.logger.debug(f"{self.account_id} ページ読み込み完了")
 
         except Exception as e:
-            self.logger.error(f"実行処理中にエラーが発生: {e}")
+            self.error_screenshot_discord(
+                f"{self.account_id}: photo_upload 処理中にエラーが発生",  # discordへの出力
+                str(e),
+                f"{self.account_id}: photo_upload 処理中にエラーが発生"  # ログへの出力
+            )
 
         time.sleep(1)
 
@@ -325,23 +355,31 @@ class SiteOperations:
     def game_title_input(self):
         try:
             # title入力欄を探す
-            self.logger.debug(" title入力欄 を捜索開始")
+            self.logger.debug(f"{self.account_id} title入力欄 を捜索開始")
             game_title_input = self.chrome.find_element(By.ID, self.title_input_xpath)
-            self.logger.debug(" title入力欄 を発見")
+            self.logger.debug(f"{self.account_id} title入力欄 を発見")
 
         except NoSuchElementException as e:
-            self.logger.error(f" fileのアップロードの<input>要素 が見つかりません:{e}")
+            self.error_screenshot_discord(
+                f"{self.account_id}: game_title_input 要素が見つからない",  # discordへの出力
+                str(e),
+                f"{self.account_id}: game_title_input 要素が見つからない"  # ログへの出力
+            )
 
         try:
-            self.logger.debug(" title_input に入力 開始")
+            self.logger.debug(f"{self.account_id} title_input に入力 開始")
 
             game_title_input.send_keys(self.spreadsheet_data.get_game_title())
 
             # game_title_input.send_keys(self.gametitle)
-            self.logger.debug(" title_input に入力 完了")
+            self.logger.debug(f"{self.account_id} title_input に入力 完了")
 
         except FileNotFoundError as e:
-            self.logger.error(f" photo_file_xpath が見つかりません:{e}")
+            self.error_screenshot_discord(
+                f"{self.account_id}: game_title_input ファイルが見つからない",  # discordへの出力
+                str(e),
+                f"{self.account_id}: game_title_input ファイルが見つからない"  # ログへの出力
+            )
 
         time.sleep(1)
 
@@ -353,63 +391,73 @@ class SiteOperations:
             self.logger.debug("ページ読み込み完了")
 
         except Exception as e:
-            self.logger.error(f"実行処理中にエラーが発生: {e}")
+            self.logger.error(f"{self.account_id}: 実行処理中にエラーが発生: {e}")
 
         time.sleep(1)
 
         try:
             # 入力予測欄を探す
-            self.logger.debug(self.title_predict_xpath)
-            self.logger.debug(" 入力予測欄 を捜索開始")
+            self.logger.debug(f"{self.account_id} : {self.title_predict_xpath}")
+            self.logger.debug(f"{self.account_id} 入力予測欄 を捜索開始")
             title_predict = self.chrome.find_element(By.XPATH, self.title_predict_xpath)
-            self.logger.debug(" 入力予測欄 を発見")
+            self.logger.debug(f"{self.account_id} 入力予測欄 を発見")
 
-            self.logger.debug(" 入力予測欄 をクリック開始")
+            self.logger.debug(f"{self.account_id} 入力予測欄 をクリック開始")
             title_predict.click()
-            self.logger.debug(" 入力予測欄 をクリック終了")
+            self.logger.debug(f"{self.account_id} 入力予測欄 をクリック終了")
 
             time.sleep(3)
 
         # もし要素が見つからない場合にdisplay:noneを鑑みる
         except NoSuchElementException as e:
-            self.logger.debug("指定した入力予測欄 が見つかりません")
+            self.logger.debug(f"{self.account_id} 指定した入力予測欄 が見つかりません")
 
             # display:noneを解除
-            self.logger.debug(" display:noneを解除 開始")
+            self.logger.debug(f"{self.account_id} display:noneを解除 開始")
             self.chrome.execute_script("document.getElementById('ui-id-2').style.display = 'block';")
-            self.logger.debug(" display:noneを解除 完了開始")
+            self.logger.debug(f"{self.account_id} display:noneを解除 完了開始")
 
             try:
                 # 入力予測欄を探す
-                self.logger.debug(" 入力予測欄 を捜索開始")
+                self.logger.debug(f"{self.account_id} 入力予測欄 を捜索開始")
                 title_predict = self.chrome.find_element(By.XPATH, self.title_predict_xpath)
-                self.logger.debug(" 入力予測欄 を発見")
+                self.logger.debug(f"{self.account_id} 入力予測欄 を発見")
 
                 time.sleep(1) 
 
-                self.logger.debug(" 入力予測欄 をクリック開始")
+                self.logger.debug(f"{self.account_id} 入力予測欄 をクリック開始")
                 title_predict.click()
-                self.logger.debug(" 入力予測欄 をクリック終了")
+                self.logger.debug(f"{self.account_id} 入力予測欄 をクリック終了")
 
                 time.sleep(3) 
 
             # もし見つからなかった場合にdisplay:noneが解除されてるのか確認
             except NoSuchElementException:
-                self.logger.debug("再度の検索でも入力予測欄が見つかりません")
+                self.error_screenshot_discord(
+                    f"{self.account_id}: game_title_input 要素が見つからない",  # discordへの出力
+                    str(e),
+                    f"{self.account_id}: game_title_input 要素が見つからない"  # ログへの出力
+                )
 
                 display = self.chrome.execute_script("return document.getElementById('ui-id-2').style.display;")
                 if display != 'none':
-                    self.logger.debug("display:noneが正しく解除されました。")
+                    self.logger.debug(f"{self.account_id} display:noneが正しく解除されました。")
                     try:
                         title_predict = WebDriverWait(self.chrome, 20).until(
                             EC.visibility_of_element_located((By.XPATH, self.title_predict_xpath))
                         )
-                        self.logger.debug("再度、入力予測欄を発見しました。")
+                        self.logger.debug(f"{self.account_id} 再度、入力予測欄を発見しました。")
 
                     except TimeoutException:
-                        self.logger.debug("display:none解除後も要素が見つかりません。")
+                        self.error_screenshot_discord(
+                            f"{self.account_id}: game_title_input タイムアウトエラー",  # discordへの出力
+                            str(e),
+                            f"{self.account_id}: game_title_input タイムアウトエラー"  # ログへの出力
+                        )
+
                 else:
-                    self.logger.debug("display:noneが解除されていません。")
+                    self.logger.debug(f"{self.account_id} display:noneが解除されていません。")
+
 
         except UnexpectedAlertPresentException as e:
             try:
@@ -427,7 +475,11 @@ class SiteOperations:
                 alert.accept()  # アラートを承認
 
             except Exception as e:
-                self.logger.error(f"実行処理中にエラーが発生: {e}")
+                self.error_screenshot_discord(
+                    f"{self.account_id}: game_title_input 処理中にエラーが発生",  # discordへの出力
+                    str(e),
+                    f"{self.account_id}: game_title_input 処理中にエラーが発生"  # ログへの出力
+                )
 
 
 # ----------------------------------------------------------------------------------
@@ -436,16 +488,12 @@ class SiteOperations:
     def item_title(self):
         try:
             # item_title を探して押す
-            self.logger.debug(" item_title の特定 開始")
+            self.logger.debug(f"{self.account_id} item_title の特定 開始")
             title_input = self.chrome.find_element(By.ID, self.config['item_title_xpath'])
-            self.logger.debug("item_title を発見")
+            self.logger.debug(f"{self.account_id} item_title を発見")
 
-        except NoSuchElementException as e:
-            self.logger.error(f"item_title が見つかりません:{e}")
-
-        try:
             self.logger.debug(f"スプシのタイトルに入力する文言 :{self.spreadsheet_data.get_item_title()[:30]}")
-            self.logger.debug(" item_title 入力開始")
+            self.logger.debug(f"{self.account_id} item_title 入力開始")
 
             # 絵文字があるため一度クリップボードに入れ込んでコピーする
             pyperclip.copy(self.spreadsheet_data.get_item_title())
@@ -454,21 +502,29 @@ class SiteOperations:
             title_input.send_keys(Keys.CONTROL, 'v')
             title_input.send_keys(Keys.COMMAND, 'v')
 
-            self.logger.debug(" item_title 入力完了")
+            self.logger.debug(f"{self.account_id} item_title 入力完了")
 
-        # もし要素が見つからない場合
-        except NoSuchElementException as e:
-            self.logger.error(f"指定した入力予測欄 が見つかりません: {e}")
 
-        try:
             # ボタンを押した後のページ読み込みの完了確認
             WebDriverWait(self.chrome, 5).until(
             lambda driver: driver.execute_script('return document.readyState') == 'complete'
             )
             self.logger.debug(f"{self.account_id} ページ読み込み完了")
 
+        # もし要素が見つからない場合
+        except NoSuchElementException as e:
+            self.error_screenshot_discord(
+                f"{self.account_id}: item_title 要素が見つからない",  # discordへの出力
+                str(e),
+                f"{self.account_id}: item_title 要素が見つからない"  # ログへの出力
+            )
+
         except Exception as e:
-            self.logger.error(f"{self.account_id} 処理中にエラーが発生: {e}")
+            self.error_screenshot_discord(
+                f"{self.account_id}: item_title 処理中にエラーが発生",  # discordへの出力
+                str(e),
+                f"{self.account_id}: item_title 処理中にエラーが発生"  # ログへの出力
+            )
 
         time.sleep(1)
 
@@ -479,16 +535,12 @@ class SiteOperations:
     def item_text(self):
         try:
             # item_text を探して押す
-            self.logger.debug(" item_text の特定 開始")
+            self.logger.debug(f"{self.account_id} item_text の特定 開始")
             title_input = self.chrome.find_element(By.ID, self.config['item_text_xpath'])
-            self.logger.debug("item_text を発見")
+            self.logger.debug(f"{self.account_id}item_text を発見")
 
-        except NoSuchElementException as e:
-            self.logger.error(f"item_text が見つかりません:{e}")
-
-        try:
             self.logger.debug(f"スプシのタイトルに入力する文言 :{self.spreadsheet_data.get_item_text()}"[:30])
-            self.logger.debug(" item_text 入力開始")
+            self.logger.debug(f"{self.account_id} item_text 入力開始")
 
             # 絵文字があるため一度クリップボードに入れ込んでコピーする
             pyperclip.copy(self.spreadsheet_data.get_item_text())
@@ -497,21 +549,28 @@ class SiteOperations:
             title_input.send_keys(Keys.CONTROL, 'v')    #! 本番ではこっちを使う
             title_input.send_keys(Keys.COMMAND, 'v')
 
-            self.logger.debug(" item_text 入力完了")
+            self.logger.debug(f"{self.account_id} item_text 入力完了")
 
-        # もし要素が見つからない場合
-        except NoSuchElementException as e:
-            self.logger.error(f"指定した入力予測欄 が見つかりません: {e}")
-
-        try:
             # ボタンを押した後のページ読み込みの完了確認
             WebDriverWait(self.chrome, 5).until(
             lambda driver: driver.execute_script('return document.readyState') == 'complete'
             )
             self.logger.debug(f"{self.account_id} ページ読み込み完了")
 
+        # もし要素が見つからない場合
+        except NoSuchElementException as e:
+            self.error_screenshot_discord(
+                f"{self.account_id}: item_text 要素が見つからない",  # discordへの出力
+                str(e),
+                f"{self.account_id}: item_text 要素が見つからない"  # ログへの出力
+            )
+
         except Exception as e:
-            self.logger.error(f"{self.account_id} 処理中にエラーが発生: {e}")
+            self.error_screenshot_discord(
+                f"{self.account_id}: item_text 処理中にエラーが発生",  # discordへの出力
+                str(e),
+                f"{self.account_id}: item_text 処理中にエラーが発生"  # ログへの出力
+            )
 
         time.sleep(1)
 
@@ -523,9 +582,9 @@ class SiteOperations:
     def level_input(self):
         try:
             # 出品ボタンを探して押す
-            self.logger.debug(" level_input を特定開始")
+            self.logger.debug(f"{self.account_id} level_input を特定開始")
             level_input = self.chrome.find_element(By.ID, self.level_input_xpath)
-            self.logger.debug(" level_input を発見")
+            self.logger.debug(f"{self.account_id} level_input を発見")
 
         except NoSuchElementException as e:
             # スクリーンショット
@@ -541,11 +600,15 @@ class SiteOperations:
                     files = {"file": (filename, f, "image/png")}
                     requests.post(self.discord_url, data={"content": content}, files=files)
 
-            raise(f"{self.account_id}: level_input が見つかりません:{e}")
+            self.error_screenshot_discord(
+                f"{self.account_id}: level_input 要素が見つからない",  # discordへの出力
+                str(e),
+                f"{self.account_id}: level_input 要素が見つからない"  # ログへの出力
+            )
 
-        self.logger.debug(" level_input に数値入力 開始")
+        self.logger.debug(f"{self.account_id} level_input に数値入力 開始")
         level_input.send_keys('1')
-        self.logger.debug(" level_input に数値入力 終了")
+        self.logger.debug(f"{self.account_id} level_input に数値入力 終了")
 
         try:
             # ボタンを押した後のページ読み込みの完了確認
@@ -555,7 +618,11 @@ class SiteOperations:
             self.logger.debug(f"{self.account_id} ページ読み込み完了")
 
         except Exception as e:
-            raise(f"{self.account_id} 処理中にエラーが発生: {e}")
+            self.error_screenshot_discord(
+                f"{self.account_id}: level_input 処理中にエラーが発生",  # discordへの出力
+                str(e),
+                f"{self.account_id}: level_input 処理中にエラーが発生"  # ログへの出力
+            )
 
         time.sleep(1)
 
@@ -568,9 +635,9 @@ class SiteOperations:
             # 出品ボタンを探して押す
             self.logger.debug(" rank_input 捜索 開始")
             select_element = self.chrome.find_element(By.ID, self.rank_input_xpath)
-            self.logger.debug(" rank_input 発見")
+            self.logger.debug(f"{self.account_id} rank_input 発見")
 
-            self.logger.debug(" rank_input 選択 開始")
+            self.logger.debug(f"{self.account_id} rank_input 選択 開始")
 
             # ドロップダウンメニューを選択できるように指定
             select_object = Select(select_element)
@@ -579,18 +646,25 @@ class SiteOperations:
             select_object.select_by_visible_text("エーペックスプレデター")
             self.logger.debug(" rank_input 選択 終了")
 
-        except NoSuchElementException as e:
-            raise(f"{self.account_id}: rank_input が見つかりません:{e}")
-
-        try:
             # ボタンを押した後のページ読み込みの完了確認
             WebDriverWait(self.chrome, 5).until(
             lambda driver: driver.execute_script('return document.readyState') == 'complete'
             )
             self.logger.debug(f"{self.account_id} ページ読み込み完了")
 
+        except NoSuchElementException as e:
+            self.error_screenshot_discord(
+                f"{self.account_id}: rank_input 要素が見つからない",  # discordへの出力
+                str(e),
+                f"{self.account_id}: rank_input 要素が見つからない"  # ログへの出力
+            )
+
         except Exception as e:
-            raise(f"{self.account_id} rank_input 処理中にエラーが発生: {e}")
+            self.error_screenshot_discord(
+                f"{self.account_id}: rank_input 処理中にエラーが発生",  # discordへの出力
+                str(e),
+                f"{self.account_id}: rank_input 処理中にエラーが発生"  # ログへの出力
+            )
 
         time.sleep(1)
 
@@ -601,26 +675,33 @@ class SiteOperations:
     def legend_input(self):
         try:
             # 出品ボタンを探して押す
-            self.logger.debug(" legend_input を特定開始")
+            self.logger.debug(f" {self.account_id} legend_input を特定開始")
             legend_input = self.chrome.find_element(By.ID, self.legend_input_xpath)
-            self.logger.debug(" legend_input を発見")
+            self.logger.debug(f" {self.account_id} legend_input を発見")
 
-        except NoSuchElementException as e:
-            raise(f"{self.account_id}: legend_input が見つかりません:{e}")
+            self.logger.debug(f" {self.account_id} legend_input に数値入力 開始")
+            legend_input.send_keys('1')
+            self.logger.debug(f" {self.account_id} legend_input に数値入力 終了")
 
-        self.logger.debug(" legend_input に数値入力 開始")
-        legend_input.send_keys('1')
-        self.logger.debug(" legend_input に数値入力 終了")
-
-        try:
             # ボタンを押した後のページ読み込みの完了確認
             WebDriverWait(self.chrome, 5).until(
             lambda driver: driver.execute_script('return document.readyState') == 'complete'
             )
             self.logger.debug(f"{self.account_id} ページ読み込み完了")
 
+        except NoSuchElementException as e:
+            self.error_screenshot_discord(
+                f"{self.account_id}: legend_input 要素が見つからない",  # discordへの出力
+                str(e),
+                f"{self.account_id}: legend_input 要素が見つからない"  # ログへの出力
+            )
+
         except Exception as e:
-            raise(f"{self.account_id} legend_input 処理中にエラーが発生: {e}")
+            self.error_screenshot_discord(
+                f"{self.account_id}: legend_input 処理中にエラーが発生",  # discordへの出力
+                str(e),
+                f"{self.account_id}: legend_input 処理中にエラーが発生"  # ログへの出力
+            )
 
         time.sleep(1)
 
@@ -643,18 +724,25 @@ class SiteOperations:
 
             self.logger.debug(" item_price 入力完了")
 
-        except NoSuchElementException as e:
-            raise(f"{self.account_id}: item_price_input が見つかりません:{e}")
-
-        try:
             # ボタンを押した後のページ読み込みの完了確認
             WebDriverWait(self.chrome, 5).until(
             lambda driver: driver.execute_script('return document.readyState') == 'complete'
             )
             self.logger.debug(f"{self.account_id} ページ読み込み完了")
 
+        except NoSuchElementException as e:
+            self.error_screenshot_discord(
+                f"{self.account_id}: deploy_btn 要素が見つからない",  # discordへの出力
+                str(e),
+                f"{self.account_id}: deploy_btn 要素が見つからない"  # ログへの出力
+            )
+
         except Exception as e:
-            raise(f"{self.account_id} item_price 処理中にエラーが発生: {e}")
+            self.error_screenshot_discord(
+                f"{self.account_id}: item_price 処理中にエラーが発生",  # discordへの出力
+                str(e),
+                f"{self.account_id}: item_price 処理中にエラーが発生"  # ログへの出力
+            )
 
 
 
@@ -673,7 +761,11 @@ class SiteOperations:
             self.logger.debug(" check_box_Push 発見")
 
         except NoSuchElementException as e:
-            raise(f"{self.account_id}: check_box_Push が見つかりません:{e}")
+            self.error_screenshot_discord(
+                f"{self.account_id}: check_box_Push 要素が見つからない",  # discordへの出力
+                str(e),
+                f"{self.account_id}: check_box_Push 要素が見つからない"  # ログへの出力
+            )
 
 
         check_box.click()
@@ -686,7 +778,11 @@ class SiteOperations:
             self.logger.debug(f"{self.account_id} 次のページ読み込み完了")
 
         except Exception as e:
-            raise(f"{self.account_id} check_box_Push 処理中にエラーが発生: {e}")
+            self.error_screenshot_discord(
+                f"{self.account_id}: check_box_Push 処理中にエラーが発生",  # discordへの出力
+                str(e),
+                f"{self.account_id}: check_box_Push 処理中にエラーが発生"  # ログへの出力
+            )
 
         time.sleep(1)
 
@@ -739,7 +835,11 @@ class SiteOperations:
             self.logger.debug(" deploy_btn を発見")
 
         except NoSuchElementException as e:
-            raise(f"{self.account_id}: deploy_btnPush が見つかりません:{e}")
+            self.error_screenshot_discord(
+                f"{self.account_id}: deploy_btn 要素が見つからない",  # discordへの出力
+                str(e),
+                f"{self.account_id}: deploy_btn 要素が見つからない"  # ログへの出力
+            )
 
         deploy_btn.click()
 
@@ -1019,10 +1119,10 @@ class SiteOperations:
         time.sleep(3)
 
         # 成功のスクショを送信
-        self.info_screenshot_discord(
-            f"{self.account_id}:reCAPTCHA回避 成功",  # discordへの通知
-            f"{self.account_id}:reCAPTCHA回避 成功"  # ログへの通知
-        )
+        # self.info_screenshot_discord(
+        #     f"{self.account_id}:reCAPTCHA回避 成功",  # discordへの通知
+        #     f"{self.account_id}:reCAPTCHA回避 成功"  # ログへの通知
+        # )
 
         time.sleep(2)
 
@@ -1101,11 +1201,11 @@ class SiteOperations:
 
         time.sleep(3)
 
-        # 成功のスクショを送信
-        self.info_screenshot_discord(
-            f"{self.account_id}:reCAPTCHA回避 成功",  # discordへの通知
-            f"{self.account_id}:reCAPTCHA回避 成功"  # ログへの通知
-        )
+        # # 成功のスクショを送信
+        # self.info_screenshot_discord(
+        #     f"{self.account_id}:reCAPTCHA回避 成功",  # discordへの通知
+        #     f"{self.account_id}:reCAPTCHA回避 成功"  # ログへの通知
+        # )
 
 
         time.sleep(2)
