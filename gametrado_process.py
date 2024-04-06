@@ -66,7 +66,7 @@ class GametradeProcess:
     def setup_chrome(self):
         try:
             chrome_options = Options()
-            chrome_options.add_argument("--headless")  # ヘッドレスモードで実行
+            # chrome_options.add_argument("--headless")  # ヘッドレスモードで実行
             chrome_options.add_argument("--window-size=1200,1000")  # ウィンドウサイズの指定
             chrome_options.add_extension(security_path)  # iframe対策の広告ブロッカー
             chrome_options.add_extension(cap_path)
