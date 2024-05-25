@@ -1,11 +1,12 @@
 # coding: utf-8
 # ----------------------------------------------------------------------------------
-#? valorant_process集計クラス
+#? Process集計クラス
 # 基本はカプセル化したものを使う。
 # GUIがある場合には引数にいれるものは引数に入れて渡す
 # ----------------------------------------------------------------------------------
 import os, asyncio
 from gametrado_process import GametradeProcess
+
 
 # ----------------------------------------------------------------------------------
 
@@ -14,15 +15,18 @@ def get_fullpath(relative_path):
     # 絶対path
     script_dir = os.path.dirname(os.path.abspath(__file__))
 
-    # # item_photo の絶対path
-    # item_photo_dir = os.path.join(script_dir, 'item_photo')
+    if relative_path:
+        full_path = os.path.join(script_dir, relative_path)
 
-    # 繋げることを定義して返す
-    full_path = os.path.join(script_dir, relative_path)
+    else:
+        full_path = script_dir
+
     return full_path
 
 
 # ----------------------------------------------------------------------------------
+# async def main_define(main_url, cookies_file_name, image, gametitle, sheet_url, account_id, semaphore):
+#     gametrade = GametradeProcess(main_url, cookies_file_name, image, gametitle, sheet_url, account_id)
 
 
 async def main_define(main_url, cookies_file_name, image, sheet_url, account_id, semaphore):
@@ -30,13 +34,13 @@ async def main_define(main_url, cookies_file_name, image, sheet_url, account_id,
 
     async with semaphore:
 
-        await gametrade.valorant_process()
+        await gametrade.process()
 
 
 # ----------------------------------------------------------------------------------
 # 並列処理の間にsleepを入れる
 
-async def process_account(account, semaphore, delay=0):
+async def process_account(account, semaphore, delay=0): 
 
     await asyncio.sleep(delay)
 
@@ -49,31 +53,31 @@ async def main():
     accounts = [
         {
             "main_url" : os.getenv("GAME_TRADE_MAIN_URL"),
-            "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_I"),
-            "image" : get_fullpath(os.getenv("GAME_TRADE_IMAGE_I")),
-            "sheet_url" : os.getenv("GAME_TRADE_SHEET_URL_I"),
-            "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_I"),
+            "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_A"),
+            "image" : get_fullpath(os.getenv("GAME_TRADE_IMAGE_A")),
+            "sheet_url" : os.getenv("GAME_TRADE_SHEET_URL_A"),
+            "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_A"),
         },
         {
             "main_url" : os.getenv("GAME_TRADE_MAIN_URL"),
-            "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_J"),
-            "image" : get_fullpath(os.getenv("GAME_TRADE_IMAGE_J")),
-            "sheet_url" : os.getenv("GAME_TRADE_SHEET_URL_J"),
-            "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_J"),
+            "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_B"),
+            "image" : get_fullpath(os.getenv("GAME_TRADE_IMAGE_B")),
+            "sheet_url" : os.getenv("GAME_TRADE_SHEET_URL_B"),
+            "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_B"),
         },
         {
             "main_url" : os.getenv("GAME_TRADE_MAIN_URL"),
-            "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_K"),
-            "image" : get_fullpath(os.getenv("GAME_TRADE_IMAGE_K")),
-            "sheet_url" : os.getenv("GAME_TRADE_SHEET_URL_K"),
-            "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_K"),
+            "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_C"),
+            "image" : get_fullpath(os.getenv("GAME_TRADE_IMAGE_C")),
+            "sheet_url" : os.getenv("GAME_TRADE_SHEET_URL_C"),
+            "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_C"),
         },
         {
             "main_url" : os.getenv("GAME_TRADE_MAIN_URL"),
-            "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_L"),
-            "image" : get_fullpath(os.getenv("GAME_TRADE_IMAGE_L")),
-            "sheet_url" : os.getenv("GAME_TRADE_SHEET_URL_L"),
-            "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_L"),
+            "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_D"),
+            "image" : get_fullpath(os.getenv("GAME_TRADE_IMAGE_D")),
+            "sheet_url" : os.getenv("GAME_TRADE_SHEET_URL_D"),
+            "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_D"),
         },
 
     ]
