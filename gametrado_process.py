@@ -19,7 +19,7 @@ from selenium.common.exceptions import WebDriverException
 
 # 自作モジュール
 from logger.debug_logger import Logger
-from site_operations.sub_shops import OpGametrade
+from site_operations.sub_shops import OpGametrade,OpValorantGametrade
 
 # スクショ用のタイムスタンプ
 timestamp = datetime.now().strftime("%m-%d_%H-%M")
@@ -48,7 +48,8 @@ class GametradeProcess:
         self.logger = self.setup_logger(debug_mode=debug_mode)
 
         #! テストするインスタンス生成
-        self.site_operations = OpGametrade(self.chrome,main_url, cookies_file_name, image, sheet_url, account_id)
+        self.apex_operations = OpGametrade(self.chrome,main_url, cookies_file_name, image, sheet_url, account_id)
+        self.valorant_operations = OpValorantGametrade(self.chrome,main_url, cookies_file_name, image, sheet_url, account_id)
 
 
 # ----------------------------------------------------------------------------------
@@ -172,7 +173,7 @@ class GametradeProcess:
 
 
         #! ここからインスタンスを入れていく
-        await self.site_operations.OpGetOrElse()
+        await self.apex_operations.OpGetOrElse()
 
         self.logger.info(" 処理 完了")
 
@@ -196,7 +197,7 @@ class GametradeProcess:
 
 
         #! ここからインスタンスを入れていく
-        await self.site_operations.AgencyOpGetOrElse()
+        await self.apex_operations.AgencyOpGetOrElse()
 
         self.logger.info(" 処理 完了")
 
@@ -220,7 +221,31 @@ class GametradeProcess:
 
 
         #! ここからインスタンスを入れていく
-        await self.site_operations.valorantOpGetOrElse()
+        await self.valorant_operations.valorantOpGetOrElse()
+
+        self.logger.info(" 処理 完了")
+
+        self.chrome.quit()
+
+
+# ----------------------------------------------------------------------------------
+#? ここにカプセル化した内容をいれる
+
+    async def agency_valorant_process(self):
+        self.logger.info(f"{self.account_id} スクレイピング 開始")
+        self.logger.debug(f"{self.account_id} サイトを開いてます。")
+        self.chrome.get(self.main_url)
+
+        current_url = self.chrome.current_url
+        self.logger.debug(f"URL: {current_url}")
+        time.sleep(1)
+
+        # 現在のURL
+        self.logger.debug(f"{__name__} URL: {self.current_url}")
+
+
+        #! ここからインスタンスを入れていく
+        await self.valorant_operations.AgencyValorantOpGetOrElse()
 
         self.logger.info(" 処理 完了")
 

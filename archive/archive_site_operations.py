@@ -445,8 +445,12 @@ class SiteOperations:
             # ドロップダウンメニューを選択できるように指定
             select_object = Select(select_element)
 
+            self.logger.debug(f"スプシから取得data rank :{self.spreadsheet_data.get_item_rank()}")
+
+            rank_data = self.spreadsheet_data.get_item_rank()
+
             # 選択肢をChoice
-            select_object.select_by_visible_text("エーペックスプレデター")
+            select_object.select_by_visible_text(rank_data)
             self.logger.debug(" rank_input 選択 終了")
 
         except NoSuchElementException as e:

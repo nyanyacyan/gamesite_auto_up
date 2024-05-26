@@ -1,14 +1,15 @@
 # coding: utf-8
 # ----------------------------------------------------------------------------------
-#? valorant_process集計クラス
+#? Process集計クラス
 # 基本はカプセル化したものを使う。
 # GUIがある場合には引数にいれるものは引数に入れて渡す
 # ----------------------------------------------------------------------------------
 import os, asyncio
 from gametrado_process import GametradeProcess
 
-# ----------------------------------------------------------------------------------
 
+# ----------------------------------------------------------------------------------
+# 写真のフルパスのために定義
 
 def get_fullpath(relative_path):
     # 絶対path
@@ -18,8 +19,7 @@ def get_fullpath(relative_path):
     # item_photo_dir = os.path.join(script_dir, 'item_photo')
 
     # 繋げることを定義して返す
-    full_path = os.path.join(script_dir, relative_path)
-    return full_path
+    return os.path.join(script_dir, relative_path)
 
 
 # ----------------------------------------------------------------------------------
@@ -30,7 +30,7 @@ async def main_define(main_url, cookies_file_name, image, sheet_url, account_id,
 
     async with semaphore:
 
-        await gametrade.valorant_process()
+        await gametrade.agency_valorant_process()
 
 
 # ----------------------------------------------------------------------------------
@@ -45,7 +45,8 @@ async def process_account(account, semaphore, delay=0):
 
 # ----------------------------------------------------------------------------------
 
-async def main():
+
+async def agency_main():
     accounts = [
         {
             "main_url" : os.getenv("GAME_TRADE_MAIN_URL"),
@@ -75,8 +76,8 @@ async def main():
         #     "sheet_url" : os.getenv("GAME_TRADE_SHEET_URL_P"),
         #     "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_P"),
         # },
-
     ]
+
 
     # 最大で処理できる数を2つまでに絞り込み
     semaphore = asyncio.Semaphore(2)
@@ -87,14 +88,15 @@ async def main():
 
         # accountsの中に「image」があるものだけ実施
         if i < len(accounts) and accounts[i]["image"]:
-            print(f"Processing account {i}: {accounts[i]}")  # デバッグ出力
+
             # 最初のタスクは遅らせない
             tasks.append(process_account(accounts[i], semaphore, delay=0))
 
         if i+1 < len(accounts) and accounts[i+1]["image"]:
-            print(f"Processing account {i+1}: {accounts[i+1]}")  # デバッグ出力
+
             # 2つ目は15秒遅らせる
             tasks.append(process_account(accounts[i+1], semaphore, delay=60))
+
 
         try:
             await asyncio.gather(*tasks)
@@ -108,7 +110,7 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(agency_main())
 
 
 # ----------------------------------------------------------------------------------

@@ -232,6 +232,9 @@ class SiteOperations:
 
             response = session.get(self.main_url)
 
+            self.logger.info("sessionでのログイン成功")
+
+
             # テキスト化
             res_text = response.text
             self.logger.debug(f"res_text: {res_text}"[:30])
@@ -495,6 +498,9 @@ class SiteOperations:
             self.logger.debug(f"{self.account_id} item_title 入力開始")
 
             # 絵文字があるため一度クリップボードに入れ込んでコピーする
+            item_title = self.spreadsheet_data.get_item_title()
+            self.logger.debug(item_title)
+
             pyperclip.copy(self.spreadsheet_data.get_item_title())
 
             # コピペをSeleniumのKeysを使って行う
@@ -635,8 +641,12 @@ class SiteOperations:
             # ドロップダウンメニューを選択できるように指定
             select_object = Select(select_element)
 
+            self.logger.debug(f"スプシから取得data rank :{self.spreadsheet_data.get_item_rank()}")
+
+            rank_data = self.spreadsheet_data.get_item_rank()
+
             # 選択肢をChoice
-            select_object.select_by_visible_text("エーペックスプレデター")
+            select_object.select_by_visible_text(rank_data)
             self.logger.debug(" rank_input 選択 終了")
 
             # ボタンを押した後のページ読み込みの完了確認
@@ -1154,7 +1164,6 @@ class SiteOperations:
 
 # ----------------------------------------------------------------------------------
 # メインメソッド(代行)
-# valorant(代行)
 
     def agency_site_operation(self):
         '''メインメソッド'''
@@ -1215,8 +1224,8 @@ class SiteOperations:
         self.game_title_input()
         self.item_title()
         self.item_text()
-        self.level_input()
-        # self.rank_input()
+        # self.level_input()
+        self.rank_input()
         # self.legend_input()
         self.item_price()
         self.check_box_Push()
@@ -1243,11 +1252,85 @@ class SiteOperations:
 # ----------------------------------------------------------------------------------
 # メインメソッドを非同期処理に変換
 
-    async def agency_site_operation_valorant_async(self):
+    async def site_operation_valorant_async(self):
         loop = asyncio.get_running_loop()
 
         # ブロッキング、実行タイミング、並列処理などを適切に行えるように「functools」にてワンクッション置いて実行
         await loop.run_in_executor(None, functools.partial(self.site_operation_valorant))
+
+
+# ----------------------------------------------------------------------------------
+# valorantメインメソッド
+
+    def agency_valorant(self):
+        self.logger.debug(f"{__name__}: 処理開始")
+
+        self.cookie_login()
+        time.sleep(2)
+
+        self.lister_btnPush()
+        time.sleep(2)
+
+        self.photo_upload()
+        time.sleep(2)
+
+        self.game_title_input()
+        time.sleep(2)
+
+        self.agency_input()
+        time.sleep(2)
+
+        self.item_title()
+        time.sleep(2)
+
+        self.item_text()
+        time.sleep(2)
+
+        # self.level_input()
+        # self.rank_input()
+        # self.legend_input()
+        self.item_price()
+        time.sleep(2)
+
+        self.check_box_Push()
+        time.sleep(2)
+
+        self.deploy_btnPush()
+        time.sleep(2)
+
+        self.last_check()
+        time.sleep(2)
+
+        self.comment_btn()
+        time.sleep(2)
+
+        self.item_comment()
+        time.sleep(2)
+
+        self.item_comment_btn()
+
+        time.sleep(3)
+
+        # 成功のスクショを送信
+        self.info_screenshot_discord(
+            f"{self.account_id}:【valorant】reCAPTCHA回避 成功",  # discordへの通知
+            f"{self.account_id}:【valorant】reCAPTCHA回避 成功"  # ログへの通知
+        )
+
+        time.sleep(2)
+
+
+        self.logger.debug(f"{__name__}: 処理完了")
+
+
+# ----------------------------------------------------------------------------------
+# メインメソッドを非同期処理に変換
+
+    async def agency_site_operation_valorant_async(self):
+        loop = asyncio.get_running_loop()
+
+        # ブロッキング、実行タイミング、並列処理などを適切に行えるように「functools」にてワンクッション置いて実行
+        await loop.run_in_executor(None, functools.partial(self.agency_valorant))
 
 
 # ----------------------------------------------------------------------------------
