@@ -18,16 +18,13 @@ from concurrent.futures import ThreadPoolExecutor
 
 from dotenv import load_dotenv
 
-from selenium import webdriver
 from selenium.common.exceptions import (ElementNotInteractableException,
                                         NoSuchElementException,
                                         UnexpectedAlertPresentException,
-                                        NoAlertPresentException,
                                         ElementClickInterceptedException,
                                         TimeoutException)
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.alert import Alert
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait, Select
 
@@ -218,7 +215,7 @@ class SiteOperations:
 
         self.chrome.get(self.main_url)
         self.logger.info("Cookieを使ってメイン画面にアクセス")
-
+        time.sleep(2)
 
         if self.main_url != self.chrome.current_url:
             self.logger.info("Cookieでのログイン成功")
@@ -239,11 +236,7 @@ class SiteOperations:
             res_text = response.text
             self.logger.debug(f"res_text: {res_text}"[:30])
 
-            #! 後で修正 テキストが確認できたらログインのできたこと内容をピックアップして「ログインの成功の条件」に追加
-            # if "ログイン成功の条件" in res_text:
-            #     self.logger.info("requestsによるCookieでのログイン成功")
-            # else:
-            #     self.logger.info("requestsによるCookieでのログイン失敗")
+
 
         try:
             # ログインした後のページ読み込みの完了確認

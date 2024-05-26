@@ -9,13 +9,11 @@
 # ----------------------------------------------------------------------------------
 
 
-import os
 
 from dotenv import load_dotenv
 
 # 自作モジュール
 from site_operations.site_operations import SiteOperations
-from spreadsheet.read import Read
 
 load_dotenv()  # .env ファイルから環境変数を読み込む
 

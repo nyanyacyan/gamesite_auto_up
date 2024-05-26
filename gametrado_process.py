@@ -10,7 +10,6 @@ import requests
 from datetime import datetime
 
 
-import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -160,12 +159,10 @@ class GametradeProcess:
 #? ここにカプセル化した内容をいれる
 
     async def process(self):
-        self.logger.info(f"{self.account_id} スクレイピング 開始")
-        self.logger.debug(f"{self.account_id}サイトを開いてます。")
+        self.logger.info(f"{self.account_id}  出品Process 開始")
+        self.logger.debug(f"{self.account_id} サイトを開いてます。")
         self.chrome.get(self.main_url)
 
-        current_url = self.chrome.current_url
-        self.logger.debug(f"URL: {current_url}")
         time.sleep(1)
 
         # 現在のURL
@@ -175,7 +172,8 @@ class GametradeProcess:
         #! ここからインスタンスを入れていく
         await self.apex_operations.OpGetOrElse()
 
-        self.logger.info(" 処理 完了")
+        self.logger.warning(f"{self.account_id}  出品Process 完了")
+
 
         self.chrome.quit()
 
@@ -184,12 +182,11 @@ class GametradeProcess:
 #? ここにカプセル化した内容をいれる
 
     async def agency_process(self):
-        self.logger.info(f"{self.account_id} スクレイピング 開始")
+        self.logger.info(f"{self.account_id}  出品Process 開始")
+
         self.logger.debug(f"{self.account_id} サイトを開いてます。")
         self.chrome.get(self.main_url)
 
-        current_url = self.chrome.current_url
-        self.logger.debug(f"URL: {current_url}")
         time.sleep(1)
 
         # 現在のURL
@@ -199,7 +196,7 @@ class GametradeProcess:
         #! ここからインスタンスを入れていく
         await self.apex_operations.AgencyOpGetOrElse()
 
-        self.logger.info(" 処理 完了")
+        self.logger.warning(f"{self.account_id}  出品Process 完了")
 
         self.chrome.quit()
 
@@ -208,12 +205,10 @@ class GametradeProcess:
 #? ここにカプセル化した内容をいれる
 
     async def valorant_process(self):
-        self.logger.info(f"{self.account_id} スクレイピング 開始")
+        self.logger.info(f"{self.account_id}  出品Process 開始")
         self.logger.debug(f"{self.account_id} サイトを開いてます。")
         self.chrome.get(self.main_url)
 
-        current_url = self.chrome.current_url
-        self.logger.debug(f"URL: {current_url}")
         time.sleep(1)
 
         # 現在のURL
@@ -223,7 +218,8 @@ class GametradeProcess:
         #! ここからインスタンスを入れていく
         await self.valorant_operations.valorantOpGetOrElse()
 
-        self.logger.info(" 処理 完了")
+        self.logger.warning(f"{self.account_id}  出品Process 完了")
+
 
         self.chrome.quit()
 
@@ -232,12 +228,10 @@ class GametradeProcess:
 #? ここにカプセル化した内容をいれる
 
     async def agency_valorant_process(self):
-        self.logger.info(f"{self.account_id} スクレイピング 開始")
+        self.logger.info(f"{self.account_id}  出品Process 開始")
         self.logger.debug(f"{self.account_id} サイトを開いてます。")
         self.chrome.get(self.main_url)
 
-        current_url = self.chrome.current_url
-        self.logger.debug(f"URL: {current_url}")
         time.sleep(1)
 
         # 現在のURL
@@ -247,7 +241,8 @@ class GametradeProcess:
         #! ここからインスタンスを入れていく
         await self.valorant_operations.AgencyValorantOpGetOrElse()
 
-        self.logger.info(" 処理 完了")
+        self.logger.warning(f"{self.account_id}  出品Process 完了")
+
 
         self.chrome.quit()
 
