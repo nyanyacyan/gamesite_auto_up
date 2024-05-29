@@ -62,20 +62,20 @@ async def agency_main():
             "sheet_url" : os.getenv("GAME_TRADE_SHEET_URL_N"),
             "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_N"),
         },
-        # {
-        #     "main_url" : os.getenv("GAME_TRADE_MAIN_URL"),
-        #     "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_O"),
-        #     "image" : get_fullpath(os.getenv("GAME_TRADE_IMAGE_O")),
-        #     "sheet_url" : os.getenv("GAME_TRADE_SHEET_URL_O"),
-        #     "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_O"),
-        # },
-        # {
-        #     "main_url" : os.getenv("GAME_TRADE_MAIN_URL"),
-        #     "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_P"),
-        #     "image" : get_fullpath(os.getenv("GAME_TRADE_IMAGE_P")),
-        #     "sheet_url" : os.getenv("GAME_TRADE_SHEET_URL_P"),
-        #     "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_P"),
-        # },
+        {
+            "main_url" : os.getenv("GAME_TRADE_MAIN_URL"),
+            "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_O"),
+            "image" : get_fullpath(os.getenv("GAME_TRADE_IMAGE_O")),
+            "sheet_url" : os.getenv("GAME_TRADE_SHEET_URL_O"),
+            "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_O"),
+        },
+        {
+            "main_url" : os.getenv("GAME_TRADE_MAIN_URL"),
+            "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_P"),
+            "image" : get_fullpath(os.getenv("GAME_TRADE_IMAGE_P")),
+            "sheet_url" : os.getenv("GAME_TRADE_SHEET_URL_P"),
+            "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_P"),
+        },
     ]
 
 

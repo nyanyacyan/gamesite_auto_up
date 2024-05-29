@@ -33,62 +33,62 @@ async def process_account(account, semaphore, delay=0):
 async def main():
     #! 同一のサイトのアカウントはここに追記
     accounts = [
-        # {
-        #     "loginurl" : os.getenv("GAME_TRADE_LOGIN_URL"),
-        #     "userid" : os.getenv("GAME_TRADE_ID_A"),
-        #     "password" : os.getenv("GAME_TRADE_PASS_A"),
-        #     "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_A"),
-        #     "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_A")
-        # },
-        # {
-        #     "loginurl": os.getenv("GAME_TRADE_LOGIN_URL"),
-        #     "userid": os.getenv("GAME_TRADE_ID_B"),
-        #     "password": os.getenv("GAME_TRADE_PASS_B"),
-        #     "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_B"),
-        #     "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_B")
-        # },
-        # {
-        #     "loginurl": os.getenv("GAME_TRADE_LOGIN_URL"),
-        #     "userid": os.getenv("GAME_TRADE_ID_C"),
-        #     "password": os.getenv("GAME_TRADE_PASS_C"),
-        #     "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_C"),
-        #     "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_C")
-        # },
-        # {
-        #     "loginurl": os.getenv("GAME_TRADE_LOGIN_URL"),
-        #     "userid": os.getenv("GAME_TRADE_ID_D"),
-        #     "password": os.getenv("GAME_TRADE_PASS_D"),
-        #     "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_D"),
-        #     "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_D")
-        # },
-        # {
-        #     "loginurl": os.getenv("GAME_TRADE_LOGIN_URL"),
-        #     "userid": os.getenv("GAME_TRADE_ID_E"),
-        #     "password": os.getenv("GAME_TRADE_PASS_E"),
-        #     "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_E"),
-        #     "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_E")
-        # },
-        # {
-        #     "loginurl": os.getenv("GAME_TRADE_LOGIN_URL"),
-        #     "userid": os.getenv("GAME_TRADE_ID_F"),
-        #     "password": os.getenv("GAME_TRADE_PASS_F"),
-        #     "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_F"),
-        #     "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_F")
-        # },
-        # {
-        #     "loginurl": os.getenv("GAME_TRADE_LOGIN_URL"),
-        #     "userid": os.getenv("GAME_TRADE_ID_G"),
-        #     "password": os.getenv("GAME_TRADE_PASS_G"),
-        #     "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_G"),
-        #     "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_G")
-        # },
-        # {
-        #     "loginurl": os.getenv("GAME_TRADE_LOGIN_URL"),
-        #     "userid": os.getenv("GAME_TRADE_ID_H"),
-        #     "password": os.getenv("GAME_TRADE_PASS_H"),
-        #     "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_H"),
-        #     "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_H")
-        # },
+        {
+            "loginurl" : os.getenv("GAME_TRADE_LOGIN_URL"),
+            "userid" : os.getenv("GAME_TRADE_ID_A"),
+            "password" : os.getenv("GAME_TRADE_PASS_A"),
+            "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_A"),
+            "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_A")
+        },
+        {
+            "loginurl": os.getenv("GAME_TRADE_LOGIN_URL"),
+            "userid": os.getenv("GAME_TRADE_ID_B"),
+            "password": os.getenv("GAME_TRADE_PASS_B"),
+            "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_B"),
+            "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_B")
+        },
+        {
+            "loginurl": os.getenv("GAME_TRADE_LOGIN_URL"),
+            "userid": os.getenv("GAME_TRADE_ID_C"),
+            "password": os.getenv("GAME_TRADE_PASS_C"),
+            "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_C"),
+            "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_C")
+        },
+        {
+            "loginurl": os.getenv("GAME_TRADE_LOGIN_URL"),
+            "userid": os.getenv("GAME_TRADE_ID_D"),
+            "password": os.getenv("GAME_TRADE_PASS_D"),
+            "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_D"),
+            "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_D")
+        },
+        {
+            "loginurl": os.getenv("GAME_TRADE_LOGIN_URL"),
+            "userid": os.getenv("GAME_TRADE_ID_E"),
+            "password": os.getenv("GAME_TRADE_PASS_E"),
+            "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_E"),
+            "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_E")
+        },
+        {
+            "loginurl": os.getenv("GAME_TRADE_LOGIN_URL"),
+            "userid": os.getenv("GAME_TRADE_ID_F"),
+            "password": os.getenv("GAME_TRADE_PASS_F"),
+            "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_F"),
+            "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_F")
+        },
+        {
+            "loginurl": os.getenv("GAME_TRADE_LOGIN_URL"),
+            "userid": os.getenv("GAME_TRADE_ID_G"),
+            "password": os.getenv("GAME_TRADE_PASS_G"),
+            "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_G"),
+            "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_G")
+        },
+        {
+            "loginurl": os.getenv("GAME_TRADE_LOGIN_URL"),
+            "userid": os.getenv("GAME_TRADE_ID_H"),
+            "password": os.getenv("GAME_TRADE_PASS_H"),
+            "cookies_file_name" : os.getenv("GAME_TRADE_COOKIE_H"),
+            "account_id" : os.getenv("GAME_TRADE_ACCOUNT_ID_H")
+        },
         {
             "loginurl" : os.getenv("GAME_TRADE_LOGIN_URL"),
             "userid" : os.getenv("GAME_TRADE_ID_I"),

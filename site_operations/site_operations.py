@@ -497,8 +497,8 @@ class SiteOperations:
             pyperclip.copy(self.spreadsheet_data.get_item_title())
 
             # コピペをSeleniumのKeysを使って行う
-            # title_input.send_keys(Keys.CONTROL, 'v')
-            title_input.send_keys(Keys.COMMAND, 'v')
+            title_input.send_keys(Keys.CONTROL, 'v')
+            # title_input.send_keys(Keys.COMMAND, 'v')
 
             self.logger.debug(f"{self.account_id} item_title 入力完了")
 
@@ -543,7 +543,7 @@ class SiteOperations:
 
             # コピペをSeleniumのKeysを使って行う
             title_input.send_keys(Keys.CONTROL, 'v')    #! 本番ではこっちを使う
-            title_input.send_keys(Keys.COMMAND, 'v')
+            # title_input.send_keys(Keys.COMMAND, 'v')
 
             self.logger.debug(f"{self.account_id} item_text 入力完了")
 
