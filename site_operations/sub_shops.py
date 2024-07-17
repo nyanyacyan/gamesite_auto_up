@@ -96,7 +96,7 @@ class OpValorantGametrade(SiteOperations):
             "lister_btn_xpath" : "//div[@class='exhibit-exhibit-button']/a",
             "photo_file_input_xpath" : "exhibit_exhibit_images[file][]",
             "title_input_xpath" : "game_title",
-            "title_predict_xpath" : "//ul[@id='ui-id-1']//li[@class='ui-menu-item']//div[@id='ui-id-44' and contains(text(), 'VALORANT(ヴァロラント)')]",
+            "title_predict_xpath" : "//ul[@id='ui-id-1' and contains(@class, 'ui-autocomplete')]//li[@class='ui-menu-item']//div[@class='ui-menu-item-wrapper' and normalize-space(text())='VALORANT(ヴァロラント)']",
             "item_title_xpath" : "exhibit_title",
             "item_text_xpath" : "exhibit_description",
             "level_input_xpath" : "",
