@@ -24,7 +24,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 
-from twocaptcha import TwoCaptcha
+# from twocaptcha import TwoCaptcha
 from dotenv import load_dotenv
 
 # 自作モジュール

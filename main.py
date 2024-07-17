@@ -40,7 +40,7 @@ async def main_define(main_url, cookies_file_name, image, sheet_url, account_id,
 # ----------------------------------------------------------------------------------
 # 並列処理の間にsleepを入れる
 
-async def process_account(account, semaphore, delay=0): 
+async def process_account(account, semaphore, delay=0):
 
     await asyncio.sleep(delay)
 

@@ -344,7 +344,7 @@ class SiteOperations:
         game_title = self.spreadsheet_data.get_game_title()
         self.logger.debug(f"{self.account_id} game_title: {game_title}")
 
-        full_xpath = self.title_predict_xpath.format(game_title)
+        full_xpath = self.title_predict_xpath
         self.logger.debug(f"{self.account_id} self.title_predict_xpath: {self.title_predict_xpath}")
         self.logger.debug(f"{self.account_id} full_xpath: {full_xpath}")
 
@@ -497,8 +497,8 @@ class SiteOperations:
             pyperclip.copy(self.spreadsheet_data.get_item_title())
 
             # コピペをSeleniumのKeysを使って行う
-            title_input.send_keys(Keys.CONTROL, 'v')
-            # title_input.send_keys(Keys.COMMAND, 'v')
+            # title_input.send_keys(Keys.CONTROL, 'v')
+            title_input.send_keys(Keys.COMMAND, 'v')
 
             self.logger.debug(f"{self.account_id} item_title 入力完了")
 
@@ -542,8 +542,8 @@ class SiteOperations:
             pyperclip.copy(self.spreadsheet_data.get_item_text())
 
             # コピペをSeleniumのKeysを使って行う
-            title_input.send_keys(Keys.CONTROL, 'v')    #! 本番ではこっちを使う
-            # title_input.send_keys(Keys.COMMAND, 'v')
+            # title_input.send_keys(Keys.CONTROL, 'v')    #! 本番ではこっちを使う
+            title_input.send_keys(Keys.COMMAND, 'v')
 
             self.logger.debug(f"{self.account_id} item_text 入力完了")
 
